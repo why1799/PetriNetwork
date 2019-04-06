@@ -12,7 +12,7 @@ namespace Petri_Network
 {
     public enum State { Normal, DragAndDrop, AddPlace, AddBridge, AddLink}
 
-    public partial class Form1 : Form
+    public partial class PetriNetwork : Form
     {
         List<Place> places;
         List<Bridge> bridges;
@@ -38,10 +38,18 @@ namespace Petri_Network
         private int settinglinknowx;
         private int settinglinknowy;
 
+        private bool draganddropplace;
+        private bool draganddropbridge;
+        private int draganddropx;
+        private int draganddropy;
+        private int draganddropitem;
+        private int draganddropaddx;
+        private int draganddropaddy;
+
         private int mousex;
         private int mousey;
 
-        public Form1()
+        public PetriNetwork()
         {
             InitializeComponent();
 
@@ -133,6 +141,10 @@ namespace Petri_Network
             }
         }
 
+        /// <summary>
+        /// Отрисовка всех позиций
+        /// </summary>
+        /// <param name="g">Место для отрисовки</param>
         private void DrawPlaces(Graphics g)
         {
             Pen pen = new Pen(Color.Black, 2);
@@ -141,13 +153,31 @@ namespace Petri_Network
             foreach (var place in places)
             {
                 var diameter = placesradius * 2;
-
-
+                
                 if ((settinglinkplace && settinglinkx == place.X && settinglinky == place.Y) ||
                     (settinglinknowplace && settinglinknowx == place.X && settinglinknowy == place.Y))
                 {
                     pen = new Pen(Color.OrangeRed, 2);
                     brushes = Brushes.OrangeRed;
+                }
+                else if(draganddropplace && place == places[draganddropitem])
+                {
+                    place.X = int.MinValue;
+                    place.Y = int.MinValue;
+
+
+                    if (PlaceTouches(mousex + draganddropaddx, mousey + draganddropaddy))
+                    {
+                        pen = new Pen(Color.OrangeRed, 2);
+                        brushes = Brushes.OrangeRed;
+                    }
+                    else
+                    {
+                        pen = new Pen(Color.LawnGreen, 2);
+                        brushes = Brushes.LawnGreen;
+                    }
+                    place.X = mousex + draganddropaddx;
+                    place.Y = mousey + draganddropaddy;
                 }
                 else
                 {
@@ -202,6 +232,10 @@ namespace Petri_Network
             }
         }
 
+        /// <summary>
+        /// Отрисовка всех переходов
+        /// </summary>
+        /// <param name="g">Место для отрисовки</param>
         private void DrawBridges(Graphics g)
         {
             Pen pen = new Pen(Color.Black, 2);
@@ -214,6 +248,23 @@ namespace Petri_Network
                 {
                     pen = new Pen(Color.OrangeRed, 2);
                 }
+                else if (draganddropbridge && bridge == bridges[draganddropitem])
+                {
+                    bridge.X = int.MinValue;
+                    bridge.Y = int.MinValue;
+
+
+                    if (BridgeTouches(mousex + draganddropaddx, mousey + draganddropaddy))
+                    {
+                        pen = new Pen(Color.OrangeRed, 2);
+                    }
+                    else
+                    {
+                        pen = new Pen(Color.LawnGreen, 2);
+                    }
+                    bridge.X = mousex + draganddropaddx;
+                    bridge.Y = mousey + draganddropaddy;
+                }
                 else
                 {
                     pen = new Pen(Color.Black, 2);
@@ -222,6 +273,10 @@ namespace Petri_Network
             }
         }
 
+        /// <summary>
+        /// Отрисовка всех дуг
+        /// </summary>
+        /// <param name="g">Место для отрисовки</param>
         private void DrawLinks(Graphics g)
         {
             int startx, endx, starty, endy;
@@ -230,7 +285,15 @@ namespace Petri_Network
             foreach (var link in links)
             {
                 var place = GetXYPlace(link.Place.X, link.Place.Y, link.Bridge.X, link.Bridge.Y);
+                if (place == null)
+                {
+                    continue;
+                }
                 var bridge = GetXYBridge(link.Bridge.X, link.Bridge.Y, link.Place.X, link.Place.Y);
+                if (bridge == null)
+                {
+                    continue;
+                }
                 if (link.FromPlace)
                 {
                     startx = place.Value.X;
@@ -249,6 +312,14 @@ namespace Petri_Network
             }
         }
 
+        /// <summary>
+        /// Находит точку пересечения позиции и прямой
+        /// </summary>
+        /// <param name="x1">Координата X центра позиции</param>
+        /// <param name="y1">Координата Y центра позиции</param>
+        /// <param name="x2">Координата X до которой идет прямая из центра</param>
+        /// <param name="y2">Координата Y до которой идет прямая из центра</param>
+        /// <returns>Возвращает точку пересечения. Если её не существует, то null</returns>
         private Point? GetXYPlace(int x1, int y1, int x2, int y2)
         {
             if (Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) < placesradius)
@@ -291,6 +362,14 @@ namespace Petri_Network
             return nowpoint;
         }
 
+        /// <summary>
+        /// Находит точку пересечения перехода и прямой
+        /// </summary>
+        /// <param name="x1">Координата X центра перехода</param>
+        /// <param name="y1">Координата Y центра перехода</param>
+        /// <param name="x2">Координата X до которой идет прямая из центра</param>
+        /// <param name="y2">Координата Y до которой идет прямая из центра</param>
+        /// <returns>Возвращает точку пересечения. Если её не существует, то null</returns>
         private Point? GetXYBridge(int x1, int y1, int x2, int y2)
         {
             int xx1 = x1 - bridgeswidth / 2;
@@ -413,6 +492,10 @@ namespace Petri_Network
             return nowpoint;
         }
 
+        /// <summary>
+        /// Отрисовка временных дуг
+        /// </summary>
+        /// <param name="g">Место для отрисовки</param>
         private void DrawTempLink(Graphics g)
         {
             Pen p = new Pen(Color.OrangeRed, 2);
@@ -454,6 +537,17 @@ namespace Petri_Network
             g.DrawLine(p, startx, starty, endx, endy);
         }
 
+        /// <summary>
+        /// Определяет есть ли пересечени у прямой и окружности
+        /// </summary>
+        /// <param name="x1">Координата X1 прямой</param>
+        /// <param name="y1">Координата Y1 прямой</param>
+        /// <param name="x2">Координата X2 прямой</param>
+        /// <param name="y2">Координата Y2 прямой</param>
+        /// <param name="xC">Координата X центра окружности</param>
+        /// <param name="yC">Координата Y центра окружности</param>
+        /// <param name="R">Радиус окружности</param>
+        /// <returns>True, если окружность и прямая пересекаются. Иначе - False</returns>
         private bool commonSectionCircle(double x1, double y1, double x2, double y2, double xC, double yC, double R)
         {
             x1 -= xC;
@@ -479,6 +573,11 @@ namespace Petri_Network
             return (a + b + c < 0);
         }
 
+        /// <summary>
+        /// Вызывается каждый раз при отрисовки pixtureBox1
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">e</param>
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
@@ -645,26 +744,10 @@ namespace Petri_Network
                 }
             }
 
-            foreach (var place in places)
+            if(PlaceTouches(x, y))
             {
-                if (Math.Sqrt((place.X - x) * (place.X - x) + (place.Y - y) * (place.Y - y)) <= placesradius * 2)
-                {
-                    MessageBox.Show("Объекты не могут пересекаться");
-                    return;
-                }
-            }
-
-            foreach (var bridge in bridges)
-            {
-                bool result = commonSectionCircle(bridge.X - bridgeswidth / 2, bridge.Y - bridgesheight / 2, bridge.X - bridgeswidth / 2, bridge.Y + bridgesheight / 2, x, y, placesradius) ||
-                    commonSectionCircle(bridge.X - bridgeswidth / 2, bridge.Y + bridgesheight / 2, bridge.X + bridgeswidth / 2, bridge.Y + bridgesheight / 2, x, y, placesradius) ||
-                    commonSectionCircle(bridge.X + bridgeswidth / 2, bridge.Y + bridgesheight / 2, bridge.X + bridgeswidth / 2, bridge.Y - bridgesheight / 2, x, y, placesradius) ||
-                    commonSectionCircle(bridge.X + bridgeswidth / 2, bridge.Y - bridgesheight / 2, bridge.X - bridgeswidth / 2, bridge.Y - bridgesheight / 2, x, y, placesradius);
-                if (result)
-                {
-                    MessageBox.Show("Объекты не могут пересекаться");
-                    return;
-                }
+                MessageBox.Show("Объекты не могут пересекаться");
+                return;
             }
 
             places.Add(new Place(x, y));
@@ -677,31 +760,20 @@ namespace Petri_Network
         /// <param name="y">Координата по Y</param>
         private void AddBridge(int x, int y)
         {
-            foreach (var bridge in bridges)
+            if(BridgeTouches(x, y))
             {
-                if (Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
-                {
-                    MessageBox.Show("Объекты не могут пересекаться");
-                    return;
-                }
-            }
-
-            foreach (var place in places)
-            {
-                bool result = commonSectionCircle(x - bridgeswidth / 2, y - bridgesheight / 2, x - bridgeswidth / 2, y + bridgesheight / 2, place.X, place.Y, placesradius) ||
-                    commonSectionCircle(x - bridgeswidth / 2, y + bridgesheight / 2, x + bridgeswidth / 2, y + bridgesheight / 2, place.X, place.Y, placesradius) ||
-                    commonSectionCircle(x + bridgeswidth / 2, y + bridgesheight / 2, x + bridgeswidth / 2, y - bridgesheight / 2, place.X, place.Y, placesradius) ||
-                    commonSectionCircle(x + bridgeswidth / 2, y - bridgesheight / 2, x - bridgeswidth / 2, y - bridgesheight / 2, place.X, place.Y, placesradius);
-                if (result)
-                {
-                    MessageBox.Show("Объекты не могут пересекаться");
-                    return;
-                }
+                MessageBox.Show("Объекты не могут пересекаться");
+                return;
             }
 
             bridges.Add(new Bridge(x, y));
         }
 
+        /// <summary>
+        /// Срабатывает в случае зажатия мыши
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">e</param>
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             if (now == State.AddLink)
@@ -709,8 +781,61 @@ namespace Petri_Network
                 AddLinkStart(e.X, e.Y);
                 pictureBox1.Invalidate();
             }
+            if(e.Button == MouseButtons.Left)
+            {
+                if(now == State.DragAndDrop)
+                {
+                    DradAndDropStart(e.X, e.Y);
+                    pictureBox1.Invalidate();
+                }
+            }
         }
 
+        /// <summary>
+        /// Выполняется для перемещения объектов, когда кнопку мыши зажали
+        /// </summary>
+        /// <param name="x">Координата X</param>
+        /// <param name="y">Координата Y</param>
+        private void DradAndDropStart(int x, int y)
+        {
+            int i = 0;
+            foreach (var place in places)
+            {
+                if (Math.Sqrt((place.X - x) * (place.X - x) + (place.Y - y) * (place.Y - y)) <= placesradius)
+                {
+                    draganddropplace = true;
+                    draganddropx = place.X;
+                    draganddropy = place.Y;
+                    draganddropaddx = place.X - x;
+                    draganddropaddy = place.Y - y;
+                    draganddropitem = i;
+                    return;
+                }
+                i++;
+            }
+
+            i = 0;
+            foreach (var bridge in bridges)
+            {
+                if (Math.Abs(x - bridge.X) <= bridgeswidth / 2 && Math.Abs(y - bridge.Y) <= bridgesheight / 2)
+                {
+                    draganddropbridge = true;
+                    draganddropx = bridge.X;
+                    draganddropy = bridge.Y;
+                    draganddropaddx = bridge.X - x;
+                    draganddropaddy = bridge.Y - y;
+                    draganddropitem = i;
+                    return;
+                }
+                i++;
+            }
+        }
+
+        /// <summary>
+        /// Выполняется для добавление дуги между двумя объектами, когда кнопку мыши зажали
+        /// </summary>
+        /// <param name="x">Координата X</param>
+        /// <param name="y">Координата Y</param>
         private void AddLinkStart(int x, int y)
         {
             foreach (var place in places)
@@ -734,6 +859,11 @@ namespace Petri_Network
             }
         }
 
+        /// <summary>
+        /// Срабатывает в случае передвижении мыши
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">e</param>
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             mousex = e.X;
@@ -743,8 +873,17 @@ namespace Petri_Network
                 AddLinkMove(e.X, e.Y);
                 pictureBox1.Invalidate();
             }
+            if(draganddropbridge || draganddropplace)
+            {
+                pictureBox1.Invalidate();
+            }
         }
 
+        /// <summary>
+        /// Выполняется для добавление дуги между двумя объектами, когда мыш передвинули
+        /// </summary>
+        /// <param name="x">Координата X</param>
+        /// <param name="y">Координата Y</param>
         private void AddLinkMove(int x, int y)
         {
             settinglinknowplace = false;
@@ -770,16 +909,69 @@ namespace Petri_Network
             }
         }
 
+        /// <summary>
+        /// Срабатывает в случае, когда кнопку мыши отпускают
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">e</param>
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             if (settinglinkbridge || settinglinkplace)
             {
                 AddLinkEnd();
             }
+            if(draganddropplace || draganddropbridge)
+            {
+                DragAndDropEnd();
+            }
         }
 
         /// <summary>
-        /// Выполняется для добавление дуги между двумя объектами
+        /// Выполняется для добавление дуги между двумя объектами, когда кнопку мыши отпустили
+        /// </summary>
+        private void DragAndDropEnd()
+        {
+            if (draganddropplace)
+            {
+                places[draganddropitem].X = int.MinValue;
+                places[draganddropitem].Y = int.MinValue;
+                if (PlaceTouches(mousex + draganddropaddx, mousey + draganddropaddy))
+                {
+                    MessageBox.Show("Объекты не могут пересекаться");
+                    places[draganddropitem].X = draganddropx;
+                    places[draganddropitem].Y = draganddropy;
+                }
+                else
+                {
+                    places[draganddropitem].X = mousex + draganddropaddx;
+                    places[draganddropitem].Y = mousey + draganddropaddy;
+                }
+            }
+
+            if(draganddropbridge)
+            {
+                bridges[draganddropitem].X = int.MinValue;
+                bridges[draganddropitem].Y = int.MinValue;
+                if (BridgeTouches(mousex + draganddropaddx, mousey + draganddropaddy))
+                {
+                    MessageBox.Show("Объекты не могут пересекаться");
+                    bridges[draganddropitem].X = draganddropx;
+                    bridges[draganddropitem].Y = draganddropy;
+                }
+                else
+                {
+                    bridges[draganddropitem].X = mousex + draganddropaddx;
+                    bridges[draganddropitem].Y = mousey + draganddropaddy;
+                }
+            }
+
+            draganddropplace = false;
+            draganddropbridge = false;
+            pictureBox1.Invalidate();
+        }
+
+        /// <summary>
+        /// Выполняется для добавление дуги между двумя объектами, когда кнопку мыши отпустили
         /// </summary>
         private void AddLinkEnd()
         {
@@ -1101,6 +1293,66 @@ namespace Petri_Network
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Пересекалась ли бы позиция, если находилась на заданных координатах
+        /// </summary>
+        /// <param name="x">Координата X</param>
+        /// <param name="y">Координата Y</param>
+        /// <returns>Возвращает True, если пересекалась бы, иначе False</returns>
+        private bool PlaceTouches(int x, int y)
+        {
+            foreach (var place in places)
+            {
+                if (Math.Sqrt((place.X - x) * (place.X - x) + (place.Y - y) * (place.Y - y)) <= placesradius * 2)
+                {
+                    return true;
+                }
+            }
+
+            foreach (var bridge in bridges)
+            {
+                bool result = commonSectionCircle(bridge.X - bridgeswidth / 2, bridge.Y - bridgesheight / 2, bridge.X - bridgeswidth / 2, bridge.Y + bridgesheight / 2, x, y, placesradius) ||
+                    commonSectionCircle(bridge.X - bridgeswidth / 2, bridge.Y + bridgesheight / 2, bridge.X + bridgeswidth / 2, bridge.Y + bridgesheight / 2, x, y, placesradius) ||
+                    commonSectionCircle(bridge.X + bridgeswidth / 2, bridge.Y + bridgesheight / 2, bridge.X + bridgeswidth / 2, bridge.Y - bridgesheight / 2, x, y, placesradius) ||
+                    commonSectionCircle(bridge.X + bridgeswidth / 2, bridge.Y - bridgesheight / 2, bridge.X - bridgeswidth / 2, bridge.Y - bridgesheight / 2, x, y, placesradius);
+                if (result)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Пересекался ли бы переход, если находилась на заданных координатах
+        /// </summary>
+        /// <param name="x">Координата X</param>
+        /// <param name="y">Координата Y</param>
+        /// <returns>Возвращает True, если пересекалась бы, иначе False</returns>
+        private bool BridgeTouches(int x, int y)
+        {
+            foreach (var bridge in bridges)
+            {
+                if (Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
+                {
+                    return true;
+                }
+            }
+
+            foreach (var place in places)
+            {
+                bool result = commonSectionCircle(x - bridgeswidth / 2, y - bridgesheight / 2, x - bridgeswidth / 2, y + bridgesheight / 2, place.X, place.Y, placesradius) ||
+                    commonSectionCircle(x - bridgeswidth / 2, y + bridgesheight / 2, x + bridgeswidth / 2, y + bridgesheight / 2, place.X, place.Y, placesradius) ||
+                    commonSectionCircle(x + bridgeswidth / 2, y + bridgesheight / 2, x + bridgeswidth / 2, y - bridgesheight / 2, place.X, place.Y, placesradius) ||
+                    commonSectionCircle(x + bridgeswidth / 2, y - bridgesheight / 2, x - bridgeswidth / 2, y - bridgesheight / 2, place.X, place.Y, placesradius);
+                if (result)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void button1_Click(object sender, EventArgs e)

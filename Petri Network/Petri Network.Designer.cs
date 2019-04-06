@@ -1,6 +1,6 @@
 ﻿namespace Petri_Network
 {
-    partial class Form1
+    partial class PetriNetwork
     {
         /// <summary>
         /// Обязательная переменная конструктора.
