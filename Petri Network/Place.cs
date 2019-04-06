@@ -11,6 +11,7 @@ namespace Petri_Network
         public int X { get; set; }
         public int Y { get; set; }
         public uint Amount { get; set; }
+        public uint Await { get; set; }
 
         public Place()
         {
