@@ -49,7 +49,7 @@ namespace Petri_Network
             bridges = new List<Bridge>();
             links = new List<Link>();
             now = State.AddLink;
-            
+
             обычныйToolStripMenuItem.Checked = true;
 
             gridradius = 2 * placesradius + placesradius / 4;
@@ -61,13 +61,13 @@ namespace Petri_Network
 
         private void func()
         {
-            
-            
+
+
         }
 
         private void Form1_MouseClick(object sender, MouseEventArgs e)
         {
-            
+
         }
 
         private void RefreshStates()
@@ -141,9 +141,9 @@ namespace Petri_Network
             foreach (var place in places)
             {
                 var diameter = placesradius * 2;
-                
 
-                if((settinglinkplace && settinglinkx == place.X && settinglinky == place.Y) ||
+
+                if ((settinglinkplace && settinglinkx == place.X && settinglinky == place.Y) ||
                     (settinglinknowplace && settinglinknowx == place.X && settinglinknowy == place.Y))
                 {
                     pen = new Pen(Color.OrangeRed, 2);
@@ -156,7 +156,7 @@ namespace Petri_Network
                 }
                 g.DrawEllipse(pen, new RectangleF(place.X - placesradius, place.Y - placesradius, diameter, diameter));
                 SolidBrush solidbrush = new SolidBrush(pen.Color);
-                
+
                 if (place.Amount == 1)
                 {
                     var amountdiameter = amountradius * 2;
@@ -251,7 +251,7 @@ namespace Petri_Network
 
         private Point? GetXYPlace(int x1, int y1, int x2, int y2)
         {
-            if(Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) < placesradius)
+            if (Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) < placesradius)
             {
                 return null;
             }
@@ -301,12 +301,12 @@ namespace Petri_Network
             {
                 return null;
             }
-            
+
             int y;
             int x;
             int a = y2 - y1;
             int b = x2 - x1;
-            int c = y1*(x2 - x1) - x1*(y2 - y1);
+            int c = y1 * (x2 - x1) - x1 * (y2 - y1);
             Point? nowpoint;
             Point? point1;
             if (a == 0)
@@ -326,20 +326,20 @@ namespace Petri_Network
 
             nowpoint = point1;
             double distance = int.MaxValue;
-            if(nowpoint != null)
+            if (nowpoint != null)
             {
                 distance = Math.Sqrt((nowpoint.Value.X - x2) * (nowpoint.Value.X - x2) + (nowpoint.Value.Y - y2) * (nowpoint.Value.Y - y2));
             }
 
             Point? point2;
-            if(b == 0)
+            if (b == 0)
             {
                 point2 = null;
             }
             else
             {
                 x = xx1;
-                y = (- c - a * x) / -b;
+                y = (-c - a * x) / -b;
                 point2 = new Point(x, y);
                 if (y > yy2 || y < yy1)
                 {
@@ -347,7 +347,7 @@ namespace Petri_Network
                 }
             }
 
-            if(point2 != null)
+            if (point2 != null)
             {
                 var tempdistance = Math.Sqrt((point2.Value.X - x2) * (point2.Value.X - x2) + (point2.Value.Y - y2) * (point2.Value.Y - y2));
                 if (tempdistance < distance)
@@ -424,7 +424,7 @@ namespace Petri_Network
             if (settinglinkplace)
             {
                 var a = GetXYPlace(settinglinkx, settinglinky, mousex, mousey);
-                if(a == null)
+                if (a == null)
                 {
                     return;
                 }
@@ -433,7 +433,7 @@ namespace Petri_Network
                 endx = mousex;
                 endy = mousey;
             }
-            else if(settinglinkbridge)
+            else if (settinglinkbridge)
             {
                 var a = GetXYBridge(settinglinkx, settinglinky, mousex, mousey);
                 if (a == null)
@@ -492,6 +492,11 @@ namespace Petri_Network
 
         }
 
+        /// <summary>
+        /// Клик по picturebox
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">EventArgs</param>
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             var args = e as MouseEventArgs;
@@ -500,8 +505,17 @@ namespace Petri_Network
             {
                 LeftPictureClick(args);
             }
+
+            if(args.Button == MouseButtons.Right)
+            {
+                RightPictureClick(args);
+            }
         }
 
+        /// <summary>
+        /// Обрабатывает левый клик по picture box
+        /// </summary>
+        /// <param name="e">Данные о мыши</param>
         private void LeftPictureClick(MouseEventArgs e)
         {
             if (now == State.AddPlace)
@@ -509,18 +523,122 @@ namespace Petri_Network
                 AddPlace(e.X, e.Y);
                 pictureBox1.Invalidate();
             }
-            if(now == State.AddBridge)
+            if (now == State.AddBridge)
             {
                 AddBridge(e.X, e.Y);
                 pictureBox1.Invalidate();
             }
         }
 
+        /// <summary>
+        /// Обрабатывает правый клик по picture box
+        /// </summary>
+        /// <param name="e">Данные о мыши</param>
+        private void RightPictureClick(MouseEventArgs e)
+        {
+            foreach (var place in places)
+            {
+                if (Math.Sqrt((place.X - e.X) * (place.X - e.X) + (place.Y - e.Y) * (place.Y - e.Y)) <= placesradius)
+                {
+                    DrawMenuPlace(place);
+                }
+            }
+
+            foreach (var bridge in bridges)
+            {
+                if (Math.Abs(e.X - bridge.X) <= bridgeswidth / 2 && Math.Abs(e.Y - bridge.Y) <= bridgesheight / 2)
+                {
+                    DrawMenuToBridge(bridge);
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Открытие меню для позиции
+        /// </summary>
+        /// <param name="place">Позиция</param>
+        private void DrawMenuPlace(Place place)
+        {
+            ContextMenuStrip menuStrip = new ContextMenuStrip();
+            ToolStripMenuItem edit = new ToolStripMenuItem("Редактировать");
+            menuStrip.Items.Add(edit);
+            ToolStripMenuItem remove = new ToolStripMenuItem("Удалить");
+            menuStrip.Items.Add(remove);
+            menuStrip.Show(pictureBox1, place.X + placesradius + 1, place.Y - placesradius - 1);
+
+            edit.Click += (s, e) =>
+            {
+                PlaceEditor placeeditor = new PlaceEditor(place);
+                placeeditor.ShowDialog();
+                pictureBox1.Invalidate();
+            };
+
+            remove.Click += (s, e) =>
+            {
+               List<int> lid = new List<int>();
+
+                for (int i = links.Count - 1; i >= 0; i--)
+                {
+                    if (links[i].Place == place)
+                    {
+                        lid.Add(i);
+                    }
+                }
+
+                foreach (var i in lid)
+                {
+                    links.RemoveAt(i);
+                }
+
+                places.Remove(place);
+                pictureBox1.Invalidate();
+            };
+        }
+
+        /// <summary>
+        /// Открытие меню для перехода
+        /// </summary>
+        /// <param name="bridge">Переход</param>
+        private void DrawMenuToBridge(Bridge bridge)
+        {
+            ContextMenuStrip menuStrip = new ContextMenuStrip();
+            ToolStripMenuItem item = new ToolStripMenuItem("Удалить");
+            menuStrip.Items.Add(item);
+            menuStrip.Show(pictureBox1, bridge.X + bridgeswidth / 2 + 1, bridge.Y - bridgesheight / 2 - 1);
+
+            item.Click += (s, e) =>
+            {
+                List<int> lid = new List<int>();
+
+                for(int i = links.Count - 1; i >= 0; i--)
+                {
+                    if(links[i].Bridge == bridge)
+                    {
+                        lid.Add(i);
+                    }
+                }
+
+                foreach(var i in lid)
+                {
+                    links.RemoveAt(i);
+                }
+
+                bridges.Remove(bridge);
+                pictureBox1.Invalidate();
+            };
+        }
+
+        /// <summary>
+        /// Добавление позиции с указанными координатами
+        /// </summary>
+        /// <param name="x">Координата по X</param>
+        /// <param name="y">Координата по Y</param>
         private void AddPlace(int x, int y)
         {
             foreach (var place in places)
             {
-                if (Math.Sqrt((place.X -x) * (place.X - x) + (place.Y - y) * (place.Y - y)) <= placesradius)
+                if (Math.Sqrt((place.X - x) * (place.X - x) + (place.Y - y) * (place.Y - y)) <= placesradius)
                 {
                     place.Amount++;
                     return;
@@ -531,20 +649,20 @@ namespace Petri_Network
             {
                 if (Math.Sqrt((place.X - x) * (place.X - x) + (place.Y - y) * (place.Y - y)) <= placesradius * 2)
                 {
-                    //To Do.. сообщение, что так близко невозможно установить
+                    MessageBox.Show("Объекты не могут пересекаться");
                     return;
                 }
             }
 
-            foreach(var bridge in bridges)
+            foreach (var bridge in bridges)
             {
                 bool result = commonSectionCircle(bridge.X - bridgeswidth / 2, bridge.Y - bridgesheight / 2, bridge.X - bridgeswidth / 2, bridge.Y + bridgesheight / 2, x, y, placesradius) ||
                     commonSectionCircle(bridge.X - bridgeswidth / 2, bridge.Y + bridgesheight / 2, bridge.X + bridgeswidth / 2, bridge.Y + bridgesheight / 2, x, y, placesradius) ||
                     commonSectionCircle(bridge.X + bridgeswidth / 2, bridge.Y + bridgesheight / 2, bridge.X + bridgeswidth / 2, bridge.Y - bridgesheight / 2, x, y, placesradius) ||
                     commonSectionCircle(bridge.X + bridgeswidth / 2, bridge.Y - bridgesheight / 2, bridge.X - bridgeswidth / 2, bridge.Y - bridgesheight / 2, x, y, placesradius);
-                if(result)
+                if (result)
                 {
-                    //To Do.. сообщение, что так близко невозможно установить
+                    MessageBox.Show("Объекты не могут пересекаться");
                     return;
                 }
             }
@@ -552,13 +670,18 @@ namespace Petri_Network
             places.Add(new Place(x, y));
         }
 
+        /// <summary>
+        /// Добавление перехода с указанными координатами
+        /// </summary>
+        /// <param name="x">Координата по X</param>
+        /// <param name="y">Координата по Y</param>
         private void AddBridge(int x, int y)
         {
             foreach (var bridge in bridges)
             {
-                if(Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
+                if (Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
                 {
-                    //To Do.. сообщение, что так близко невозможно установить
+                    MessageBox.Show("Объекты не могут пересекаться");
                     return;
                 }
             }
@@ -571,7 +694,7 @@ namespace Petri_Network
                     commonSectionCircle(x + bridgeswidth / 2, y - bridgesheight / 2, x - bridgeswidth / 2, y - bridgesheight / 2, place.X, place.Y, placesradius);
                 if (result)
                 {
-                    //To Do.. сообщение, что так близко невозможно установить
+                    MessageBox.Show("Объекты не могут пересекаться");
                     return;
                 }
             }
@@ -655,65 +778,103 @@ namespace Petri_Network
             }
         }
 
+        /// <summary>
+        /// Выполняется для добавление дуги между двумя объектами
+        /// </summary>
         private void AddLinkEnd()
         {
-            if(settinglinknowbridge && settinglinkbridge)
+            bool ok = true;
+            if (settinglinknowbridge && settinglinkbridge)
             {
-                //To do сообщение о том, что сделать это невозможно
+                if (settinglinknowx != settinglinkx && settinglinknowy != settinglinky)
+                {
+                    MessageBox.Show("Невозможно добавить дугу из перехода в переход!");
+                }
             }
             else if (settinglinknowplace && settinglinkplace)
             {
-                //To do сообщение о том, что сделать это невозможно
+                if (settinglinknowx != settinglinkx && settinglinknowy != settinglinky)
+                {
+                    MessageBox.Show("Невозможно добавить дугу из позиции в позицию!");
+                }
             }
             else if (settinglinkbridge && settinglinknowplace)
             {
-
-
-                Bridge bridge = new Bridge();
-                foreach(var tbridge in bridges)
+                foreach (var link in links)
                 {
-                    if(tbridge.X == settinglinkx && tbridge.Y == settinglinky)
+                    if (!link.FromPlace && link.Place.X == settinglinknowx && link.Place.Y == settinglinknowy)
                     {
-                        bridge = tbridge;
-                        break;
+                        MessageBox.Show("В одну позицию может входить только одна дуга!");
+                        ok = false;
                     }
                 }
 
-                Place place = new Place();
-                foreach (var tplace in places)
+                if (ok)
                 {
-                    if (tplace.X == settinglinknowx && tplace.Y == settinglinknowy)
+                    Bridge bridge = new Bridge();
+                    foreach (var tbridge in bridges)
                     {
-                        place = tplace;
-                        break;
+                        if (tbridge.X == settinglinkx && tbridge.Y == settinglinky)
+                        {
+                            bridge = tbridge;
+                            break;
+                        }
                     }
-                }
 
-                links.Add(new Link(bridge, place));
+                    Place place = new Place();
+                    foreach (var tplace in places)
+                    {
+                        if (tplace.X == settinglinknowx && tplace.Y == settinglinknowy)
+                        {
+                            place = tplace;
+                            break;
+                        }
+                    }
+
+                    links.Add(new Link(bridge, place));
+                }
             }
             else if (settinglinkplace && settinglinknowbridge)
             {
-                Bridge bridge = new Bridge();
-                foreach (var tbridge in bridges)
+                foreach (var link in links)
                 {
-                    if (tbridge.X == settinglinknowx && tbridge.Y == settinglinknowy)
+                    if (link.FromPlace && link.Place.X == settinglinkx && link.Place.Y == settinglinky)
                     {
-                        bridge = tbridge;
-                        break;
+                        MessageBox.Show("Из одной позиции может выходить только одна дуга!");
+                        ok = false;
                     }
                 }
 
-                Place place = new Place();
-                foreach (var tplace in places)
+                if (ok)
                 {
-                    if (tplace.X == settinglinkx && tplace.Y == settinglinky)
+                    Bridge bridge = new Bridge();
+                    foreach (var tbridge in bridges)
                     {
-                        place = tplace;
-                        break;
+                        if (tbridge.X == settinglinknowx && tbridge.Y == settinglinknowy)
+                        {
+                            bridge = tbridge;
+                            break;
+                        }
                     }
-                }
 
-                links.Add(new Link(place, bridge));
+                    Place place = new Place();
+                    foreach (var tplace in places)
+                    {
+                        if (tplace.X == settinglinkx && tplace.Y == settinglinky)
+                        {
+                            place = tplace;
+                            break;
+                        }
+                    }
+
+                    links.Add(new Link(place, bridge));
+                }
+            }
+
+            if(!OneBetweenAnyTwoBridges())
+            {
+                links.RemoveAt(links.Count - 1);
+                MessageBox.Show("Дугу невозможно добавить! Между двумя переходами может быть максимум одна позиция!");
             }
 
             settinglinkbridge = false;
@@ -722,5 +883,229 @@ namespace Petri_Network
             settinglinknowplace = false;
             pictureBox1.Invalidate();
         }
+
+        /// <summary>
+        /// Проверяет есть ли входной переход
+        /// </summary>
+        /// <returns>возвращает True, если есть, иначе - False</returns>
+        private bool HasEnter()
+        {
+            bool has = false;
+            foreach (var bringe in bridges)
+            {
+                bool enter = false, exit = false;
+                foreach (var link in links)
+                {
+                    if (link.Bridge == bringe)
+                    {
+                        if (link.FromPlace)
+                        {
+                            enter = true;
+                        }
+                        else
+                        {
+                            exit = true;
+                        }
+                    }
+                    if (exit && enter)
+                    {
+                        break;
+                    }
+                }
+                if (!enter && exit)
+                {
+                    has = true;
+                    break;
+                }
+            }
+            return has;
+        }
+
+        /// <summary>
+        /// Проверяет есть ли выходной переход
+        /// </summary>
+        /// <returns>возвращает True, если есть, иначе - False</returns>
+        private bool HasExit()
+        {
+            bool has = false;
+            foreach (var bringe in bridges)
+            {
+                bool enter = false, exit = false;
+                foreach (var link in links)
+                {
+                    if (link.Bridge == bringe)
+                    {
+                        if (link.FromPlace)
+                        {
+                            enter = true;
+                        }
+                        else
+                        {
+                            exit = true;
+                        }
+                    }
+                    if (exit && enter)
+                    {
+                        break;
+                    }
+                }
+                if (enter && !exit)
+                {
+                    has = true;
+                    break;
+                }
+            }
+            return has;
+        }
+
+        /// <summary>
+        /// Проверяет является ли граф связанным
+        /// </summary>
+        /// <returns>возвращает True, иначе - False</returns>
+        private bool IsGraphConnected()
+        {
+            bool[] pla = new bool[places.Count];
+            bool[] bri = new bool[bridges.Count];
+
+            for (int i = 0; i < pla.Length; i++)
+            {
+                pla[i] = false;
+            }
+
+            for (int i = 0; i < bri.Length; i++)
+            {
+                bri[i] = false;
+            }
+
+            if ((places.Count == 0 && bridges.Count == 1) || (places.Count == 1 && bridges.Count == 0) || (places.Count == 0 && bridges.Count == 0))
+            {
+                return true;
+            }
+
+            ForPlace(ref pla, ref bri, places[0]);
+
+            foreach(var p in pla)
+            {
+                if(!p)
+                {
+                    return false;
+                }
+            }
+
+            foreach (var b in bri)
+            {
+                if (!b)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Обход в глубину от позиции
+        /// </summary>
+        /// <param name="pla">Массив посещеных позиций</param>
+        /// <param name="bri">Массив посещеных переходов</param>
+        /// <param name="place">Позиция</param>
+        private void ForPlace(ref bool[] pla, ref bool[] bri, Place place)
+        {
+            int i;
+            for(i = 0; i < places.Count; i++)
+            {
+                if (places[i] == place)
+                {
+                    break;
+                }
+            }
+
+            if(pla[i])
+            {
+                return;
+            }
+
+            pla[i] = true;
+
+            foreach(var link in links)
+            {
+                if(link.Place == place)
+                {
+                    ForBridge(ref pla, ref bri, link.Bridge);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Обход в глубину от перехода
+        /// </summary>
+        /// <param name="pla">Массив посещеных позиций</param>
+        /// <param name="bri">Массив посещеных переходов</param>
+        /// <param name="place">Переход</param>
+        private void ForBridge(ref bool[] pla, ref bool[] bri, Bridge bridge)
+        {
+            int i;
+            for (i = 0; i < bridges.Count; i++)
+            {
+                if (bridges[i] == bridge)
+                {
+                    break;
+                }
+            }
+
+            if (bri[i])
+            {
+                return;
+            }
+
+            bri[i] = true;
+
+            foreach (var link in links)
+            {
+                if (link.Bridge == bridge)
+                {
+                    ForPlace(ref pla, ref bri, link.Place);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Проверят что между двумя переходами не больше одной позиции
+        /// </summary>
+        /// <returns>Возвращает True, если это так, иначе - False</returns>
+        private bool OneBetweenAnyTwoBridges()
+        {
+            for(int i = 0; i < bridges.Count; i++)
+            {
+                for (int j = i + 1; j < bridges.Count; j++)
+                {
+                    int count = 0;
+                    foreach(var link1 in links)
+                    {
+                        if(link1.Bridge == bridges[i])
+                        {
+                            Place place = link1.Place;
+                            foreach(var link2 in links)
+                            {
+                                if(link2.Place == place && link2.Bridge == bridges[j])
+                                {
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                    if(count > 1)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(OneBetweenAnyTwoBridges().ToString());
+        } 
     }
 }
