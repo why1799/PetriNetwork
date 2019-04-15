@@ -14,6 +14,8 @@ namespace Petri_Network
 
     public partial class PetriNetwork : Form
     {
+
+
         List<Place> places;
         List<Bridge> bridges;
         List<Link> links;
@@ -187,6 +189,7 @@ namespace Petri_Network
                 g.DrawEllipse(pen, new RectangleF(place.X - placesradius, place.Y - placesradius, diameter, diameter));
                 SolidBrush solidbrush = new SolidBrush(pen.Color);
 
+                //Отрисовка фишек
                 if (place.Amount == 1)
                 {
                     var amountdiameter = amountradius * 2;
@@ -228,6 +231,32 @@ namespace Petri_Network
                     var size = 14;
                     Font myFont = new Font("Arial", size);
                     g.DrawString(place.Amount.ToString(), myFont, brushes, new Point(place.X - size / 2, place.Y - (int)(size / 1.5)));
+                }
+
+                //Отрисовка задержки
+                if (place.Await > 999)
+                {
+                    var size = 14;
+                    Font myFont = new Font("Arial", size);
+                    g.DrawString(place.Await.ToString().Substring(0, 2) + "...", myFont, brushes, new Point(place.X - 3 * size / 2, place.Y - (int)(size / 0.66) - placesradius));
+                }
+                else if (place.Await > 99)
+                {
+                    var size = 14;
+                    Font myFont = new Font("Arial", size);
+                    g.DrawString(place.Await.ToString(), myFont, brushes, new Point(place.X - 3 * size / 2, place.Y - (int)(size / 0.66) - placesradius));
+                }
+                else if (place.Await > 9)
+                {
+                    var size = 14;
+                    Font myFont = new Font("Arial", size);
+                    g.DrawString(place.Await.ToString(), myFont, brushes, new Point(place.X - size, place.Y - (int)(size / 0.66) - placesradius));
+                }
+                else if(place.Await > 0)
+                {
+                    var size = 14;
+                    Font myFont = new Font("Arial", size);
+                    g.DrawString(place.Await.ToString(), myFont, brushes, new Point(place.X - size / 2, place.Y - (int)(size / 0.66) - placesradius));
                 }
             }
         }
@@ -533,7 +562,6 @@ namespace Petri_Network
                 return;
             }
 
-
             g.DrawLine(p, startx, starty, endx, endy);
         }
 
@@ -589,6 +617,19 @@ namespace Petri_Network
             DrawTempLink(e.Graphics);
             DrawLinks(e.Graphics);
 
+
+            Point point1 = new Point(50, 50);
+            Point point2 = new Point(250, 250);
+            Point[] curvePoints = { point1, point2 };
+
+            // Draw lines between original points to screen.
+            g.DrawLines(new Pen(Color.Red), curvePoints);
+
+            // Create tension.
+            float tension = 1.0F;
+
+            // Draw curve to screen.
+            g.DrawCurve(new Pen(Color.Green), curvePoints, tension);
         }
 
         /// <summary>
@@ -1271,8 +1312,8 @@ namespace Petri_Network
             {
                 for (int j = i + 1; j < bridges.Count; j++)
                 {
-                    int count = 0;
-                    foreach(var link1 in links)
+                    bool firdir = false, secdir = false, thidir = false;
+                    foreach (var link1 in links)
                     {
                         if(link1.Bridge == bridges[i])
                         {
@@ -1281,12 +1322,28 @@ namespace Petri_Network
                             {
                                 if(link2.Place == place && link2.Bridge == bridges[j])
                                 {
-                                    count++;
+                                    if(!link1.FromPlace && link2.FromPlace)
+                                    {
+                                        if(firdir)
+                                        {
+                                            thidir = true;
+                                        }
+                                        firdir = true;
+                                    }
+
+                                    if(link1.FromPlace && !link2.FromPlace)
+                                    {
+                                        if (secdir)
+                                        {
+                                            thidir = true;
+                                        }
+                                        secdir = true;
+                                    }
                                 }
                             }
                         }
                     }
-                    if(count > 1)
+                    if(firdir && secdir && thidir)
                     {
                         return false;
                     }
@@ -1357,7 +1414,38 @@ namespace Petri_Network
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(OneBetweenAnyTwoBridges().ToString());
-        } 
+            
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Начинается работа модели
+        /// </summary>
+        private void StartWorking()
+        {
+            //timer1.Enabled = true;
+
+
+
+        }
+
+        /// <summary>
+        /// Срабатывает через каждый определенный промежуток таймера
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">e</param>
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

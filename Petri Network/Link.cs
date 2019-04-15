@@ -10,6 +10,7 @@ namespace Petri_Network
     {
         public Place Place { get; }
         public Bridge Bridge { get; }
+        public int Сurvature { get; set; }
         public bool FromPlace { get; }
 
 
@@ -18,6 +19,7 @@ namespace Petri_Network
             Place = place;
             Bridge = bridge;
             FromPlace = false;
+            Сurvature = 0;
         }
 
         public Link(Place place, Bridge bridge)
@@ -25,6 +27,7 @@ namespace Petri_Network
             Place = place;
             Bridge = bridge;
             FromPlace = true;
+            Сurvature = 0;
         }
     }
 }
