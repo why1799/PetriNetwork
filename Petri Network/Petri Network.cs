@@ -1621,5 +1621,15 @@ namespace Petri_Network
         {
             pictureBox1.Invalidate();
         }
+
+        /// <summary>
+        /// Удаление дуги
+        /// </summary>
+        /// <param name="link">Дуга</param>
+        /// <returns>Возвращается значение true, если элемент item успешно удален, в противном случае — значение false.</returns>
+        public bool RemoveLink(Link link)
+        {
+            return links.Remove(link);
+        }
     }
 }
