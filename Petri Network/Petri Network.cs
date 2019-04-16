@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Petri_Network
 {
-    public enum State { Normal, DragAndDrop, AddPlace, AddBridge, AddLink}
+    public enum State { Normal, DragAndDrop, AddPlace, AddBridge, AddLink, ChooseForLink}
 
     public partial class PetriNetwork : Form
     {
@@ -51,6 +51,16 @@ namespace Petri_Network
         private int mousex;
         private int mousey;
 
+        private bool firstpoint;
+        private int firstpointx;
+        private int firstpointy;
+
+        private bool secondpoint;
+        private int secondpointx;
+        private int secondpointy;
+
+        public Link ChangingLink { get; set; }
+
         public PetriNetwork()
         {
             InitializeComponent();
@@ -67,7 +77,12 @@ namespace Petri_Network
             settinglinkbridge = false;
             settinglinknowplace = false;
             settinglinknowbridge = false;
-        }
+            draganddropplace = false;
+            draganddropbridge = false;
+            firstpoint = false;
+            secondpoint = false;
+            ChangingLink = null;
+    }
 
         private void func()
         {
@@ -87,7 +102,11 @@ namespace Petri_Network
             добавлениеДугиToolStripMenuItem.Checked = false;
             добавлениеПереходаToolStripMenuItem.Checked = false;
             добавлениеПозицииToolStripMenuItem.Checked = false;
+            выбратьДугуПоВершинамToolStripMenuItem.Checked = false;
+            firstpoint = false;
+            secondpoint = false;
             now = State.Normal;
+            pictureBox1.Invalidate();
         }
 
         private void обычныйToolStripMenuItem_Click(object sender, EventArgs e)
@@ -125,6 +144,18 @@ namespace Petri_Network
             now = State.AddLink;
         }
 
+        /// <summary>
+        /// Выбрать дугу по вершинам
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">e</param>
+        private void выбратьДугуПоВершинамToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RefreshStates();
+            выбратьДугуПоВершинамToolStripMenuItem.Checked = true;
+            now = State.ChooseForLink;
+        }
+
         private void DrawGrid(Graphics g, int width, int height)
         {
             g.Clear(Color.White);//Фон
@@ -158,6 +189,12 @@ namespace Petri_Network
                 
                 if ((settinglinkplace && settinglinkx == place.X && settinglinky == place.Y) ||
                     (settinglinknowplace && settinglinknowx == place.X && settinglinknowy == place.Y))
+                {
+                    pen = new Pen(Color.OrangeRed, 2);
+                    brushes = Brushes.OrangeRed;
+                }
+                else if ((firstpoint && firstpointx == place.X && firstpointy == place.Y) ||
+                    (secondpoint && secondpointx == place.X && secondpointy == place.Y))
                 {
                     pen = new Pen(Color.OrangeRed, 2);
                     brushes = Brushes.OrangeRed;
@@ -277,6 +314,11 @@ namespace Petri_Network
                 {
                     pen = new Pen(Color.OrangeRed, 2);
                 }
+                else if ((firstpoint && firstpointx == bridge.X && firstpointy == bridge.Y) ||
+                    (secondpoint && secondpointx == bridge.X && secondpointy == bridge.Y))
+                {
+                    pen = new Pen(Color.OrangeRed, 2);
+                }
                 else if (draganddropbridge && bridge == bridges[draganddropitem])
                 {
                     bridge.X = int.MinValue;
@@ -309,10 +351,16 @@ namespace Petri_Network
         private void DrawLinks(Graphics g)
         {
             int startx, endx, starty, endy;
-            Pen p = new Pen(Color.GreenYellow, 2);
-            p.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+            Pen p;
             foreach (var link in links)
             {
+                p = new Pen(Color.GreenYellow, 2);
+                if (link == ChangingLink)
+                {
+                    p = new Pen(Color.Red, 2);
+                }
+                p.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+
                 var place = GetXYPlace(link.Place.X, link.Place.Y, link.Bridge.X, link.Bridge.Y);
                 if (place == null)
                 {
@@ -337,7 +385,19 @@ namespace Petri_Network
                     endx = place.Value.X;
                     endy = place.Value.Y;
                 }
-                g.DrawLine(p, startx, starty, endx, endy);
+
+                Point pointstart = new Point(startx, starty);
+                Point pointend = new Point(endx, endy);
+                Point? pointmiddle = GetMiddlePoint(pointstart, pointend, link.Сurvature * 10);
+
+                if(pointmiddle == null)
+                {
+                    continue;
+                }
+
+                g.DrawBezier(p, pointstart, (Point)pointmiddle, (Point)pointmiddle, pointend);
+
+                //g.DrawLine(p, startx, starty, endx, endy);
             }
         }
 
@@ -616,20 +676,6 @@ namespace Petri_Network
             DrawBridges(e.Graphics);
             DrawTempLink(e.Graphics);
             DrawLinks(e.Graphics);
-
-
-            Point point1 = new Point(50, 50);
-            Point point2 = new Point(250, 250);
-            Point[] curvePoints = { point1, point2 };
-
-            // Draw lines between original points to screen.
-            g.DrawLines(new Pen(Color.Red), curvePoints);
-
-            // Create tension.
-            float tension = 1.0F;
-
-            // Draw curve to screen.
-            g.DrawCurve(new Pen(Color.Green), curvePoints, tension);
         }
 
         /// <summary>
@@ -668,6 +714,79 @@ namespace Petri_Network
                 AddBridge(e.X, e.Y);
                 pictureBox1.Invalidate();
             }
+
+            if(now == State.ChooseForLink)
+            {
+                ChooseForLinkClick(e);
+                pictureBox1.Invalidate();
+            }
+        }
+
+        /// <summary>
+        ///  Обрабатывает левый клик по picture box, при выборе вершин между для нахождения дуг
+        /// </summary>
+        /// <param name="e">Данные о мыши</param>
+        private void ChooseForLinkClick(MouseEventArgs e)
+        {
+            foreach (var place in places)
+            {
+                if (Math.Sqrt((place.X - e.X) * (place.X - e.X) + (place.Y - e.Y) * (place.Y - e.Y)) <= placesradius)
+                {
+                    if(!firstpoint)
+                    {
+                        firstpoint = true;
+                        firstpointx = place.X;
+                        firstpointy = place.Y;
+                    }
+                    else
+                    {
+                        secondpoint = true;
+                        secondpointx = place.X;
+                        secondpointy = place.Y;
+                        EditLink();
+                    }
+                    return;
+                }
+            }
+
+            foreach (var bridge in bridges)
+            {
+                if (Math.Abs(e.X - bridge.X) <= bridgeswidth / 2 && Math.Abs(e.Y - bridge.Y) <= bridgesheight / 2)
+                {
+                    if (!firstpoint)
+                    {
+                        firstpoint = true;
+                        firstpointx = bridge.X;
+                        firstpointy = bridge.Y;
+                    }
+                    else
+                    {
+                        secondpoint = true;
+                        secondpointx = bridge.X;
+                        secondpointy = bridge.Y;
+                        EditLink();
+                    }
+                    return;
+                }
+            }
+        }
+
+        private void EditLink()
+        {
+            List<Link> links = this.links.FindAll(x => (x.Bridge.X == firstpointx && x.Bridge.Y == firstpointy && x.Place.X == secondpointx && x.Place.Y == secondpointy) ||
+                (x.Place.X == firstpointx && x.Place.Y == firstpointy && x.Bridge.X == secondpointx && x.Bridge.Y == secondpointy));
+            pictureBox1.Invalidate();
+            if (links.Count == 0)
+            {
+                MessageBox.Show("Между выбранными вершинами нет дуг!");
+                firstpoint = secondpoint = false;
+                return;
+            }
+            EditLink editer = new EditLink(links, this);
+            editer.ShowDialog();
+            ChangingLink = null;
+            firstpoint = secondpoint = false;
+            pictureBox1.Invalidate();
         }
 
         /// <summary>
@@ -681,6 +800,7 @@ namespace Petri_Network
                 if (Math.Sqrt((place.X - e.X) * (place.X - e.X) + (place.Y - e.Y) * (place.Y - e.Y)) <= placesradius)
                 {
                     DrawMenuPlace(place);
+                    return;
                 }
             }
 
@@ -1445,7 +1565,54 @@ namespace Petri_Network
 
         private void button3_Click(object sender, EventArgs e)
         {
+            var p = GetMiddlePoint(new Point(50, 50), new Point(100, 50), 10);
+        }
 
+        /// <summary>
+        /// Нахождение середины дуги
+        /// </summary>
+        /// <param name="point1">Первая точка</param>
+        /// <param name="point2">Вторая точка</param>
+        /// <param name="length">Удаленность от прямой</param>
+        /// <returns>Точку-середину дуги</returns>
+        private Point? GetMiddlePoint(Point point1, Point point2, int length)
+        {
+            Point pointMiddle = new Point((point1.X + point2.X) / 2, (point1.Y + point2.Y) / 2);
+
+            Point AB = new Point(pointMiddle.X - point1.X, pointMiddle.Y - point1.Y);
+            Point BC = new Point();
+
+            if(AB.X == 0 && AB.Y == 0)
+            {
+                return null;
+            }
+            else if(AB.X == 0)
+            {
+                BC.X = (int)Math.Sqrt((length * length * AB.Y * AB.Y) / (double)(AB.Y * AB.Y + AB.X * AB.X));
+                BC.Y = -AB.X * BC.X / AB.Y;
+            }
+            else
+            {
+                BC.Y = (int)Math.Sqrt((length * length * AB.X * AB.X) / (double)(AB.Y * AB.Y + AB.X * AB.X));
+                BC.X = -AB.Y * BC.Y / AB.X;
+            }
+
+            if(length > 0)
+            {
+                return new Point(pointMiddle.X + BC.X, pointMiddle.Y + BC.Y);
+            }
+            else
+            {
+                return new Point(pointMiddle.X - BC.X, pointMiddle.Y - BC.Y);
+            }
+        }
+
+        /// <summary>
+        /// Перерисовка picture box
+        /// </summary>
+        public void PictureboxIndalidate()
+        {
+            pictureBox1.Invalidate();
         }
     }
 }
