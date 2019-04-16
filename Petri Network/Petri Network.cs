@@ -395,9 +395,16 @@ namespace Petri_Network
                     continue;
                 }
 
-                g.DrawBezier(p, pointstart, (Point)pointmiddle, (Point)pointmiddle, pointend);
-
-                //g.DrawLine(p, startx, starty, endx, endy);
+                try
+                {
+                    g.DrawBezier(p, pointstart, (Point)pointmiddle, (Point)pointmiddle, pointend);
+                }
+                catch
+                {
+                    MessageBox.Show("Не удаётся нарисовать дугу!");
+                    link.Сurvature = 0;
+                    g.DrawLine(p, pointstart, pointend);
+                }
             }
         }
 
@@ -1588,12 +1595,12 @@ namespace Petri_Network
             }
             else if(AB.X == 0)
             {
-                BC.X = (int)Math.Sqrt((length * length * AB.Y * AB.Y) / (double)(AB.Y * AB.Y + AB.X * AB.X));
+                BC.X = (int)Math.Sqrt(((long)length * (long)length * (long)AB.Y * (long)AB.Y) / (double)((long)AB.Y * (long)AB.Y + (long)AB.X * (long)AB.X));
                 BC.Y = -AB.X * BC.X / AB.Y;
             }
             else
             {
-                BC.Y = (int)Math.Sqrt((length * length * AB.X * AB.X) / (double)(AB.Y * AB.Y + AB.X * AB.X));
+                BC.Y = (int)Math.Sqrt(((long)length * (long)length * (long)AB.X * (long)AB.X) / (double)((long)AB.Y * (long)AB.Y + (long)AB.X * (long)AB.X));
                 BC.X = -AB.Y * BC.Y / AB.X;
             }
 

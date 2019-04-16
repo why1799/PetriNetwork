@@ -51,7 +51,7 @@ namespace Petri_Network
         /// <param name="e">e</param>
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            links[comboBox1.SelectedIndex].Сurvature = (int)numericUpDown1.Value;
+            links[comboBox1.SelectedIndex].Сurvature = numericUpDown1.Value;
             petri.PictureboxIndalidate();
         }
 

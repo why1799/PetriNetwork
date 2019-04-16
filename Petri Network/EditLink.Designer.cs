@@ -65,16 +65,13 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Hexadecimal = true;
             this.numericUpDown1.Location = new System.Drawing.Point(110, 54);
-            this.numericUpDown1.Minimum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            -2147483648});
+            this.numericUpDown1.Maximum = 100;
+            this.numericUpDown1.Minimum = -100;
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(86, 20);
             this.numericUpDown1.TabIndex = 2;
+            this.numericUpDown1.Value = 0;
             this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
             // 
             // EditLink
@@ -87,6 +84,7 @@
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.comboBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
             this.Name = "EditLink";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Редактор дуг";
