@@ -359,7 +359,6 @@ namespace Petri_Network
                 {
                     p = new Pen(Color.Red, 2);
                 }
-                p.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
 
                 var place = GetXYPlace(link.Place.X, link.Place.Y, link.Bridge.X, link.Bridge.Y);
                 if (place == null)
@@ -395,17 +394,68 @@ namespace Petri_Network
                     continue;
                 }
 
+                Point[] points;
                 try
                 {
                     g.DrawBezier(p, pointstart, (Point)pointmiddle, (Point)pointmiddle, pointend);
+                    points = GetArrowEnd((Point)pointmiddle, pointend);
                 }
                 catch
                 {
                     MessageBox.Show("Не удаётся нарисовать дугу!");
                     link.Сurvature = 0;
                     g.DrawLine(p, pointstart, pointend);
+                    points = GetArrowEnd(pointstart, pointend);
                 }
+                g.DrawLine(p, points[0], pointend);
+                g.DrawLine(p, points[1], pointend);
             }
+        }
+
+        /// <summary>
+        /// Создание наконечника для стрелки
+        /// </summary>
+        /// <param name="start">Начало прямой</param>
+        /// <param name="end">Конец прямой</param>
+        /// <returns>Две точки наконечника</returns>
+        private Point[] GetArrowEnd(Point start, Point end)
+        {
+            double X1 = start.X;
+            double Y1 = start.Y;
+            double X2 = end.X;
+            double Y2 = end.Y;
+
+            // координаты центра отрезка
+            int X3 = (int)X2;
+            int Y3 = (int)Y2;
+
+            // длина отрезка
+            double d = Math.Sqrt(Math.Pow(X2 - X1, 2) + Math.Pow(Y2 - Y1, 2));
+
+            // координаты вектора
+            double X = X2 - X1;
+            double Y = Y2 - Y1;
+
+            // координаты точки, удалённой от центра к началу отрезка на 14px
+            double X4 = X3 - (X / d) * 14;
+            double Y4 = Y3 - (Y / d) * 14;
+
+            // из уравнения прямой { (x - x1)/(x1 - x2) = (y - y1)/(y1 - y2) } получаем вектор перпендикуляра
+            // (x - x1)/(x1 - x2) = (y - y1)/(y1 - y2) =>
+            // (x - x1)*(y1 - y2) = (y - y1)*(x1 - x2) =>
+            // (x - x1)*(y1 - y2) - (y - y1)*(x1 - x2) = 0 =>
+            // полученные множители x и y => координаты вектора перпендикуляра
+            double Xp = Y2 - Y1;
+            double Yp = X1 - X2;
+
+            // координаты перпендикуляров, удалённой от точки X4;Y4 на 7px в разные стороны
+            int X5 = (int)(X4 + (Xp / d) * 7);
+            int Y5 = (int)(Y4 + (Yp / d) * 7);
+            int X6 = (int)(X4 - (Xp / d) * 7);
+            int Y6 = (int)(Y4 - (Yp / d) * 7);
+
+            Point[] points = { new Point(X5, Y5), new Point(X6, Y6) };
+            return points;
         }
 
         /// <summary>
@@ -595,7 +645,6 @@ namespace Petri_Network
         private void DrawTempLink(Graphics g)
         {
             Pen p = new Pen(Color.OrangeRed, 2);
-            p.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
 
             int startx, endx, starty, endy;
 
@@ -629,7 +678,13 @@ namespace Petri_Network
                 return;
             }
 
-            g.DrawLine(p, startx, starty, endx, endy);
+            Point pointstart = new Point(startx, starty);
+            Point pointend = new Point(endx, endy);
+            Point[] points = points = GetArrowEnd(pointstart, pointend);
+
+            g.DrawLine(p, pointstart, pointend);
+            g.DrawLine(p, points[0], pointend);
+            g.DrawLine(p, points[1], pointend);
         }
 
         /// <summary>
