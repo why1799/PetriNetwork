@@ -77,5 +77,27 @@ namespace Petri_Network
                 Value--;
             }
         }
+
+        /// <summary>
+        /// Вызывается при изменении текста
+        /// </summary>
+        /// <param name="e">e</param>
+        protected override void OnTextChanged(EventArgs e)
+        {
+            int val;
+            if(int.TryParse(Text, out val))
+            {
+                _value = val;
+            }
+            else
+            {
+                _value = 0;
+            }
+            if (ValueChanged != null)
+            {
+                EventArgs eventArgs = new EventArgs();
+                ValueChanged(this, eventArgs);
+            }
+        }
     }
 }
