@@ -1,9 +1,11 @@
-﻿namespace Petri_Network
+﻿using System.Windows.Forms;
+
+namespace Petri_Network
 {
     /// <summary>
     /// Класс для корректрого отображения текста
     /// </summary>
-    public class MyNumericUpDown : System.Windows.Forms.NumericUpDown
+    public class MyNumericUpDown : NumericUpDown
     {
         /// <summary>
         /// Происходит обновления текста

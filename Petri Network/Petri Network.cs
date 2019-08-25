@@ -1565,7 +1565,7 @@ namespace Petri_Network
 
         private void button3_Click(object sender, EventArgs e)
         {
-            var p = GetMiddlePoint(new Point(50, 50), new Point(100, 50), 10);
+            //var p = GetMiddlePoint(new Point(50, 50), new Point(100, 50), 10);
         }
 
         /// <summary>
