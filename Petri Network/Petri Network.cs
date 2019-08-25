@@ -1640,10 +1640,15 @@ namespace Petri_Network
 
             HasEnter();
             HasExit();
+            CreateABCD();
 
 
             var save = new
             {
+                A = ListFromMatrix(A),
+                B = ListFromMatrix(B),
+                C = ListFromMatrix(C),
+                D = ListFromMatrix(D),
                 bridges,
                 places,
                 links
@@ -1669,6 +1674,10 @@ namespace Petri_Network
 
             var save = new
             {
+                A = new List<List<List<string>>>(),
+                B = new List<List<List<string>>>(),
+                C = new List<List<List<string>>>(),
+                D = new List<List<List<string>>>(),
                 bridges,
                 places,
                 links
@@ -1686,6 +1695,10 @@ namespace Petri_Network
                 links.Add(new Link(place, bridge, link.Сurvature, link.FromPlace));
             }
 
+            A = MatrixFromList(a.A);
+            B = MatrixFromList(a.B);
+            C = MatrixFromList(a.C);
+            D = MatrixFromList(a.D);
 
             PictureboxIndalidate();
         }
@@ -1825,6 +1838,56 @@ namespace Petri_Network
                 }
                 m.Value.Add(t);
             }
+        }
+
+        /// <summary>
+        /// Список из матрицы
+        /// </summary>
+        /// <param name="M">Матрица</param>
+        /// <returns>Список</returns>
+        private List<List<List<string>>> ListFromMatrix(Matrix M)
+        {
+            List < List <List<string>>> t = new List<List<List<string>>>();
+
+            foreach (var l1 in M.Value)
+            {
+                List<List<string>> t2 = new List<List<string>>();
+                foreach(var l2 in l1)
+                {
+                    List<string> t1 = new List<string>();
+                    t1.Add(l2.Item1);
+                    t1.Add(l2.Item2);
+                    t2.Add(t1);
+                }
+                t.Add(t2);
+            }
+
+            return t;
+        }
+
+        /// <summary>
+        /// Матрица из списка
+        /// </summary>
+        /// <param name="list">список</param>
+        /// <returns>Матрица</returns>
+        private Matrix MatrixFromList(List<List<List<string>>> list)
+        {
+            List<List<Tuple<string, string>>> t = new List<List<Tuple<string, string>>>();
+
+            foreach (var l1 in list)
+            {
+                List<Tuple<string, string>> t2 = new List<Tuple<string, string>>();
+                foreach (var l2 in l1)
+                {
+                    t2.Add(new Tuple<string, string>(l2[0], l2[1]));
+                }
+                t.Add(t2);
+            }
+
+            Matrix m = new Matrix();
+            m.Value = t;
+
+            return m;
         }
     }
 }
