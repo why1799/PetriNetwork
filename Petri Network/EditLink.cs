@@ -51,7 +51,7 @@ namespace Petri_Network
         /// <param name="e">e</param>
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            links[comboBox1.SelectedIndex].Сurvature = (int)numericUpDown1.Value;
+            links[comboBox1.SelectedIndex].Сurvature = numericUpDown1.Value;
             petri.PictureboxIndalidate();
         }
 
@@ -65,6 +65,28 @@ namespace Petri_Network
             numericUpDown1.Value = links[comboBox1.SelectedIndex].Сurvature;
             petri.ChangingLink = links[comboBox1.SelectedIndex];
             petri.PictureboxIndalidate();
+        }
+
+        /// <summary>
+        /// Удаление дуги
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">e</param>
+        private void RemoveButton_Click(object sender, EventArgs e)
+        {
+            if(petri.RemoveLink(links[comboBox1.SelectedIndex]))
+            {
+                if(comboBox1.Items.Count == 1)
+                {
+                    Close();
+                }
+                else if(comboBox1.Items.Count == 2)
+                {
+                    links.RemoveAt(comboBox1.SelectedIndex);
+                    comboBox1.Items.RemoveAt(comboBox1.SelectedIndex);
+                    comboBox1.SelectedIndex = 0;
+                }
+            }
         }
     }
 }

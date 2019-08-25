@@ -37,12 +37,12 @@
             this.добавлениеПозицииToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.добавлениеПереходаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.добавлениеДугиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.выбратьДугуПоВершинамToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.button3 = new System.Windows.Forms.Button();
-            this.выбратьДугуПоВершинамToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -54,7 +54,7 @@
             this.инструментToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(789, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -112,8 +112,18 @@
             this.добавлениеДугиToolStripMenuItem.Text = "Добавление дуги";
             this.добавлениеДугиToolStripMenuItem.Click += new System.EventHandler(this.добавлениеДугиToolStripMenuItem_Click);
             // 
+            // выбратьДугуПоВершинамToolStripMenuItem
+            // 
+            this.выбратьДугуПоВершинамToolStripMenuItem.Name = "выбратьДугуПоВершинамToolStripMenuItem";
+            this.выбратьДугуПоВершинамToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.выбратьДугуПоВершинамToolStripMenuItem.Text = "Выбрать дугу по вершинам";
+            this.выбратьДугуПоВершинамToolStripMenuItem.Click += new System.EventHandler(this.выбратьДугуПоВершинамToolStripMenuItem_Click);
+            // 
             // pictureBox1
             // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackColor = System.Drawing.SystemColors.Window;
             this.pictureBox1.Location = new System.Drawing.Point(129, 76);
             this.pictureBox1.Name = "pictureBox1";
@@ -160,18 +170,11 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
-            // выбратьДугуПоВершинамToolStripMenuItem
-            // 
-            this.выбратьДугуПоВершинамToolStripMenuItem.Name = "выбратьДугуПоВершинамToolStripMenuItem";
-            this.выбратьДугуПоВершинамToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
-            this.выбратьДугуПоВершинамToolStripMenuItem.Text = "Выбрать дугу по вершинам";
-            this.выбратьДугуПоВершинамToolStripMenuItem.Click += new System.EventHandler(this.выбратьДугуПоВершинамToolStripMenuItem_Click);
-            // 
             // PetriNetwork
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(789, 450);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
