@@ -20,5 +20,15 @@ namespace Petri_Network
             X = x;
             Y = y;
         }
+
+        public static bool operator == (Bridge left, Bridge right)
+        {
+            return left?.X == right?.X && left?.Y == right?.Y;
+        }
+
+        public static bool operator !=(Bridge left, Bridge right)
+        {
+            return left == right;
+        }
     }
 }

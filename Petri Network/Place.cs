@@ -22,5 +22,15 @@ namespace Petri_Network
             X = x;
             Y = y;
         }
+
+        public static bool operator ==(Place left, Place right)
+        {
+            return left?.X == right?.X && left?.Y == right?.Y && left?.Amount == right?.Amount && left?.Await == right?.Await;
+        }
+
+        public static bool operator !=(Place left, Place right)
+        {
+            return left == right;
+        }
     }
 }

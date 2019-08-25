@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,25 @@ namespace Petri_Network
             Bridge = bridge;
             FromPlace = true;
             Сurvature = 0;
+        }
+
+        [JsonConstructor]
+        public Link(Place place, Bridge bridge, int curvature, bool fromPlace)
+        {
+            Place = place;
+            Bridge = bridge;
+            FromPlace = fromPlace;
+            Сurvature = curvature;
+        }
+
+        public static bool operator ==(Link left, Link right)
+        {
+            return left?.Place == right?.Place && left?.Bridge == right?.Bridge && left?.Сurvature == right?.Сurvature && left?.FromPlace == right?.FromPlace;
+        }
+
+        public static bool operator !=(Link left, Link right)
+        {
+            return left == right;
         }
     }
 }

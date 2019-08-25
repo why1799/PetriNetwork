@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +16,7 @@ namespace Petri_Network
 
     public partial class PetriNetwork : Form
     {
-
+        Matrix A, B, C, D;
 
         List<Place> places;
         List<Bridge> bridges;
@@ -82,6 +84,10 @@ namespace Petri_Network
             firstpoint = false;
             secondpoint = false;
             ChangingLink = null;
+            A = new Matrix();
+            B = new Matrix();
+            C = new Matrix();
+            D = new Matrix();
     }
 
         private void func()
@@ -1499,46 +1505,37 @@ namespace Petri_Network
         {
             for(int i = 0; i < bridges.Count; i++)
             {
-                for (int j = i + 1; j < bridges.Count; j++)
+                for (int j = i; j < bridges.Count; j++)
                 {
-                    bool firdir = false, secdir = false, thidir = false;
-                    foreach (var link1 in links)
-                    {
-                        if(link1.Bridge == bridges[i])
-                        {
-                            Place place = link1.Place;
-                            foreach(var link2 in links)
-                            {
-                                if(link2.Place == place && link2.Bridge == bridges[j])
-                                {
-                                    if(!link1.FromPlace && link2.FromPlace)
-                                    {
-                                        if(firdir)
-                                        {
-                                            thidir = true;
-                                        }
-                                        firdir = true;
-                                    }
-
-                                    if(link1.FromPlace && !link2.FromPlace)
-                                    {
-                                        if (secdir)
-                                        {
-                                            thidir = true;
-                                        }
-                                        secdir = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if(firdir && secdir && thidir)
+                    if(!OneBetweenAnyTwoBridges(bridges[i], bridges[j]) || !OneBetweenAnyTwoBridges(bridges[j], bridges[i]))
                     {
                         return false;
                     }
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Проверят что между двумя контретными переходами не больше одной позиции
+        /// </summary>
+        /// <param name="bridge1">Выходной переход</param>
+        /// <param name="bridge2">Входной переход</param>
+        /// <returns>Возвращает True, если это так, иначе - False</returns>
+        private bool OneBetweenAnyTwoBridges(Bridge bridge1, Bridge bridge2)
+        {
+            int positions = 0;
+            foreach (var link1 in links.Where(l => l.Bridge == bridge1 && !l.FromPlace))
+            {
+                foreach(var link2 in links.Where(l => l.Bridge == bridge2 && l.FromPlace))
+                {
+                    if(link1.Place == link2.Place)
+                    {
+                        positions++;
+                    }
+                }
+            }
+            return positions <= 1;
         }
 
         /// <summary>
@@ -1603,7 +1600,7 @@ namespace Petri_Network
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
+            CreateABCD();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -1632,9 +1629,65 @@ namespace Petri_Network
 
         }
 
+        /// <summary>
+        /// Сохранение сети
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button3_Click(object sender, EventArgs e)
         {
             //var p = GetMiddlePoint(new Point(50, 50), new Point(100, 50), 10);
+
+            HasEnter();
+            HasExit();
+
+
+            var save = new
+            {
+                bridges,
+                places,
+                links
+            };
+
+            using (StreamWriter write = new StreamWriter("save1.txt"))
+            {
+                write.Write(JsonConvert.SerializeObject(save, Formatting.Indented));
+            }
+
+            MessageBox.Show("Файл сохранён");
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string s;
+            using (StreamReader read = new StreamReader("save1.txt"))
+            {
+                s = read.ReadToEnd();
+            }
+
+            var definition = new { bridges, places, links };
+
+            var save = new
+            {
+                bridges,
+                places,
+                links
+            };
+
+            var a = JsonConvert.DeserializeAnonymousType(s, save);
+            bridges = a.bridges;
+            places = a.places;
+            links = new List<Link>();
+
+            foreach (var link in a.links)
+            {
+                var bridge = bridges.First(b => b == link.Bridge);
+                var place = places.First(p => p == link.Place);
+                links.Add(new Link(place, bridge, link.Сurvature, link.FromPlace));
+            }
+
+
+            PictureboxIndalidate();
         }
 
         /// <summary>
@@ -1675,7 +1728,7 @@ namespace Petri_Network
                 return new Point(pointMiddle.X - BC.X, pointMiddle.Y - BC.Y);
             }
         }
-
+        
         /// <summary>
         /// Перерисовка picture box
         /// </summary>
@@ -1692,6 +1745,86 @@ namespace Petri_Network
         public bool RemoveLink(Link link)
         {
             return links.Remove(link);
+        }
+
+        /// <summary>
+        /// Создание матриц A, B, C и D
+        /// </summary>
+        private void CreateABCD()
+        {
+            List<Bridge> s = new List<Bridge>();
+            List<Bridge> x = new List<Bridge>();
+            List<Bridge> y = new List<Bridge>();
+
+            foreach (var bridge in bridges)
+            {
+                bool exit = false, enter = false;
+                foreach(var link in links.Where(l => l.Bridge == bridge))
+                {
+                    if(link.FromPlace)
+                    {
+                        enter = true;
+                    }
+
+                    if (!link.FromPlace)
+                    {
+                        exit = true;
+                    }
+                }
+
+                if(exit && enter)
+                {
+                    s.Add(bridge);
+                }
+                else if(!exit && enter)
+                {
+                    y.Add(bridge);
+                }
+                else if(exit && !enter)
+                {
+                    x.Add(bridge);
+                }
+            }
+
+            CreateMatrixFromBridges(s, s, A);
+            CreateMatrixFromBridges(x, s, B);
+            CreateMatrixFromBridges(s, y, C);
+            CreateMatrixFromBridges(x, y, D);
+        }
+
+        /// <summary>
+        /// Запись в матрицу по двум спискам переходов
+        /// </summary>
+        /// <param name="bridges1">Первый список переходов</param>
+        /// <param name="bridges2">Второй список переходов</param>
+        /// <param name="m">Матрица, в которую будет произведена запись</param>
+        private void CreateMatrixFromBridges(List<Bridge> bridges1, List<Bridge> bridges2, Matrix m)
+        {
+            m.Value = new List<List<Tuple<string, string>>>();
+            for (int i = 0; i < bridges1.Count; i++)
+            {
+                List<Tuple<string, string>> t = new List<Tuple<string, string>>();
+                for (int j = 0; j < bridges2.Count; j++)
+                {
+                    bool was = false;
+                    foreach (var link1 in links.Where(l => l.Bridge == bridges1[i] && !l.FromPlace))
+                    {
+                        foreach (var link2 in links.Where(l => l.Bridge == bridges2[j] && l.FromPlace))
+                        {
+                            if (link1.Place == link2.Place)
+                            {
+                                was = true;
+                                t.Add(new Tuple<string, string>(link1.Place.Amount.ToString(), link1.Place.Await.ToString()));
+                            }
+                        }
+                    }
+                    if (!was)
+                    {
+                        t.Add(new Tuple<string, string>("+∞", "-∞"));
+                    }
+                }
+                m.Value.Add(t);
+            }
         }
     }
 }
