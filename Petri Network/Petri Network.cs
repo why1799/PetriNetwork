@@ -413,8 +413,18 @@ namespace Petri_Network
                     g.DrawLine(p, pointstart, pointend);
                     points = GetArrowEnd(pointstart, pointend);
                 }
-                g.DrawLine(p, points[0], pointend);
-                g.DrawLine(p, points[1], pointend);
+
+                try
+                {
+                    g.DrawLine(p, points[0], pointend);
+                    g.DrawLine(p, points[1], pointend);
+                }
+                catch
+                {
+                    points = GetArrowEnd(pointstart, pointend);
+                    g.DrawLine(p, points[0], pointend);
+                    g.DrawLine(p, points[1], pointend);
+                }
             }
         }
 
