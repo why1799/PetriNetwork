@@ -40,14 +40,32 @@ namespace Petri_Network
             Сurvature = curvature;
         }
 
-        public static bool operator ==(Link left, Link right)
+        public override bool Equals(object obj)
         {
-            return left?.Place == right?.Place && left?.Bridge == right?.Bridge && left?.Сurvature == right?.Сurvature && left?.FromPlace == right?.FromPlace;
+            return this == obj as Link;
+        }
+        public override int GetHashCode()
+        {
+            return Place.GetHashCode() ^ Bridge.GetHashCode();
         }
 
+        public static bool operator ==(Link left, Link right)
+        {
+            if (Equals(left, null) == true && Equals(right, null) == true)
+            {
+                return true;
+            }
+            if (Equals(left, null) == true && Equals(right, null) == false ||
+                Equals(left, null) == false && Equals(right, null) == true)
+                return false;
+            return left.Place == right.Place
+                && left.Bridge == right.Bridge
+                && left.Сurvature == right.Сurvature
+                && left.FromPlace == right.FromPlace;
+        }
         public static bool operator !=(Link left, Link right)
         {
-            return left == right;
+            return !(left == right);
         }
     }
 }

@@ -23,14 +23,32 @@ namespace Petri_Network
             Y = y;
         }
 
-        public static bool operator ==(Place left, Place right)
+        public override bool Equals(object obj)
         {
-            return left?.X == right?.X && left?.Y == right?.Y && left?.Amount == right?.Amount && left?.Await == right?.Await;
+            return this == obj as Place;
+        }
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode();
         }
 
+        public static bool operator ==(Place left, Place right)
+        {
+            if (Equals(left, null) == true && Equals(right, null) == true)
+            {
+                return true;
+            }
+            if (Equals(left, null) == true && Equals(right, null) == false ||
+                Equals(left, null) == false && Equals(right, null) == true)
+                return false;
+            return left.X == right.X
+                && left.Y == right.Y
+                && left.Amount == right.Amount
+                && left.Await == right.Await;
+        }
         public static bool operator !=(Place left, Place right)
         {
-            return left == right;
+            return !(left == right);
         }
     }
 }

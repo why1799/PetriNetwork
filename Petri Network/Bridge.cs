@@ -21,14 +21,30 @@ namespace Petri_Network
             Y = y;
         }
 
-        public static bool operator == (Bridge left, Bridge right)
+        public override bool Equals(object obj)
         {
-            return left?.X == right?.X && left?.Y == right?.Y;
+            return this == obj as Bridge;
+        }
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode();
         }
 
+        public static bool operator ==(Bridge left, Bridge right)
+        {
+            if (Equals(left, null) == true && Equals(right, null) == true)
+            {
+                return true;
+            }
+            if (Equals(left, null) == true && Equals(right, null) == false ||
+                Equals(left, null) == false && Equals(right, null) == true)
+                return false;
+            return left.X == right.X
+                && left.Y == right.Y;
+        }
         public static bool operator !=(Bridge left, Bridge right)
         {
-            return left == right;
+            return !(left == right);
         }
     }
 }
