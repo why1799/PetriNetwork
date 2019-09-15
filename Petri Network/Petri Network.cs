@@ -24,6 +24,9 @@ namespace Petri_Network
         State now;
         Cursor cursor;
 
+        private const int TIME_SLEEP = 1000;
+        private List<Tuple<Place, uint>> Sleeping_Places;
+
         private const int placesradius = 20;
         private const int amountradius = 8;
 
@@ -1610,22 +1613,11 @@ namespace Petri_Network
 
         private void button1_Click(object sender, EventArgs e)
         {
-            CreateABCD();
+            //StartWorking();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-
-        }
-
-        /// <summary>
-        /// Начинается работа модели
-        /// </summary>
-        private void StartWorking()
-        {
-            //timer1.Enabled = true;
-
-
 
         }
 
@@ -1638,6 +1630,102 @@ namespace Petri_Network
         {
 
         }
+
+
+        //Автоматические передвижение фишек согласно их задержкам
+        /*/// <summary>
+        /// Начинается работа модели
+        /// </summary>
+        private void StartWorking()
+        {
+            //MaxSleep = places.Max(x => x.Await);
+            //NowSleep = 1;
+            Sleeping_Places = new List<Tuple<Place, uint>>();
+
+            foreach (var p in places)
+            {
+                Sleeping_Places.Add(new Tuple<Place, uint>(p, p.Amount == 0 ? 0 : p.Await));
+            }
+
+            WorkingIteration();
+            //timer1.Enabled = true;
+        }
+
+        private void WorkingIteration()
+        {
+            MoveImmediately();
+            pictureBox1.Invalidate();
+
+            foreach (var sp in Sleeping_Places.Where(sp => sp.Item2 == 0 && sp.Item1.Await != 0 && sp.Item1.Amount != 0).ToList())
+            {
+                MovePlace(sp.Item1);
+            }
+            pictureBox1.Invalidate();
+
+            MoveImmediately();
+
+            foreach (var sp in Sleeping_Places.Where(sp => sp.Item2 != 0 && sp.Item1.Await != 0 && sp.Item1.Amount != 0).ToList())
+            {
+                Sleeping_Places[Sleeping_Places.FindIndex(x => x.Item1 == sp.Item1)] = new Tuple<Place, uint>(sp.Item1, sp.Item2 - 1);
+            }
+
+            pictureBox1.Invalidate();
+        }
+
+        private void MoveImmediately()
+        {
+            bool was;
+            do
+            {
+                was = false;
+                foreach (var p in places.Where(p => p.Await == 0 && p.Amount != 0))
+                {
+                    was = MovePlace(p) || was;
+                }
+            }
+            while (was);
+        }
+
+        private bool MovePlace(Place place)
+        {
+            var bridge = links.FirstOrDefault(l => l.Place == place && l.FromPlace)?.Bridge;
+            if(bridge == null)
+            {
+                return false;
+            }
+
+            var newplace = links.FirstOrDefault(l => l.Bridge == bridge && !l.FromPlace)?.Place;
+
+            if(newplace == null)
+            {
+                return false;
+            }
+
+            place.Amount--;
+            newplace.Amount++;
+
+            Sleeping_Places[Sleeping_Places.FindIndex(sp => sp.Item1 == place)] = new Tuple<Place, uint>(place, place.Await);
+
+            ChangeOrder(bridge);
+
+            return true;
+        }
+
+        private void ChangeOrder(Bridge bridge)
+        {
+            var lnks = links.Where(l => l.Bridge == bridge && !l.FromPlace).ToList();
+            
+            if(lnks == null || lnks.Count == 0 || lnks.Count == 1)
+            {
+                return;
+            }
+
+            for(int i = 0, j = lnks.Count - 1; i < lnks.Count; i++, j++)
+            {
+                j %= lnks.Count;
+                links[links.FindIndex(x => x == lnks[j])] = lnks[i];
+            }
+        }*/
 
         /// <summary>
         /// Сохранение сети
