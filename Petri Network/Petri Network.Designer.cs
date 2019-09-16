@@ -38,14 +38,18 @@
             this.добавлениеПереходаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.добавлениеДугиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.выбратьДугуПоВершинамToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.pictureBox1 = new Petri_Network.MyPanel();
+            this.AddZoom = new System.Windows.Forms.Button();
+            this.MinusZoom = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -120,22 +124,15 @@
             this.выбратьДугуПоВершинамToolStripMenuItem.Text = "Выбрать дугу по вершинам";
             this.выбратьДугуПоВершинамToolStripMenuItem.Click += new System.EventHandler(this.выбратьДугуПоВершинамToolStripMenuItem_Click);
             // 
-            // pictureBox1
+            // pictureBox2
             // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.BackColor = System.Drawing.SystemColors.Window;
-            this.pictureBox1.Location = new System.Drawing.Point(129, 76);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(633, 362);
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
-            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
-            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
+            this.pictureBox2.BackColor = System.Drawing.SystemColors.Window;
+            this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox2.Location = new System.Drawing.Point(12, 57);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(101, 84);
+            this.pictureBox2.TabIndex = 1;
+            this.pictureBox2.TabStop = false;
             // 
             // button1
             // 
@@ -181,24 +178,76 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox1.AutoScroll = true;
+            this.pictureBox1.AutoScrollMinSize = new System.Drawing.Size(2000, 2000);
+            this.pictureBox1.BackColor = System.Drawing.SystemColors.Window;
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pictureBox1.Location = new System.Drawing.Point(129, 57);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(632, 381);
+            this.pictureBox1.TabIndex = 6;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
+            // 
+            // AddZoom
+            // 
+            this.AddZoom.Location = new System.Drawing.Point(72, 401);
+            this.AddZoom.Name = "AddZoom";
+            this.AddZoom.Size = new System.Drawing.Size(23, 23);
+            this.AddZoom.TabIndex = 7;
+            this.AddZoom.Text = "+";
+            this.AddZoom.UseVisualStyleBackColor = true;
+            this.AddZoom.Click += new System.EventHandler(this.AddZoom_Click);
+            // 
+            // MinusZoom
+            // 
+            this.MinusZoom.Location = new System.Drawing.Point(12, 401);
+            this.MinusZoom.Name = "MinusZoom";
+            this.MinusZoom.Size = new System.Drawing.Size(23, 23);
+            this.MinusZoom.TabIndex = 8;
+            this.MinusZoom.Text = "-";
+            this.MinusZoom.UseVisualStyleBackColor = true;
+            this.MinusZoom.Click += new System.EventHandler(this.MinusZoom_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(41, 406);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(25, 13);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "100";
+            // 
             // PetriNetwork
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(789, 450);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.MinusZoom);
+            this.Controls.Add(this.AddZoom);
+            this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.pictureBox1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "PetriNetwork";
             this.Text = "Form1";
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseClick);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -214,13 +263,17 @@
         private System.Windows.Forms.ToolStripMenuItem добавлениеПереходаToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem добавлениеПозицииToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem добавлениеДугиToolStripMenuItem;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ToolStripMenuItem выбратьДугуПоВершинамToolStripMenuItem;
         private System.Windows.Forms.Button button4;
+        private MyPanel pictureBox1;
+        private System.Windows.Forms.Button AddZoom;
+        private System.Windows.Forms.Button MinusZoom;
+        private System.Windows.Forms.Label label1;
     }
 }
 

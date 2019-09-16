@@ -55,6 +55,9 @@
     <Compile Include="EditLink.Designer.cs">
       <DependentUpon>EditLink.cs</DependentUpon>
     </Compile>
+    <Compile Include="MyPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Link.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="MyNumericUpDown.cs">

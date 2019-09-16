@@ -66,6 +66,10 @@ namespace Petri_Network
 
         public Link ChangingLink { get; set; }
 
+        private ContextMenuStrip CurrentContextMenuStrip;
+        private int zoom;
+        private float zoomf;
+
         public PetriNetwork()
         {
             InitializeComponent();
@@ -91,7 +95,11 @@ namespace Petri_Network
             B = new Matrix();
             C = new Matrix();
             D = new Matrix();
-    }
+
+            CurrentContextMenuStrip = new ContextMenuStrip();
+            zoom = 100;
+            SetNewZoom();
+        }
 
         private void func()
         {
@@ -756,10 +764,15 @@ namespace Petri_Network
         /// <param name="e">e</param>
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
+            CurrentContextMenuStrip.Visible = false;
+
             Graphics g = e.Graphics;
+            
             //DrawGrid(g, pictureBox1.Width, pictureBox1.Height);
             g.Clear(Color.White);//Фон
 
+            g.TranslateTransform(pictureBox1.AutoScrollPosition.X, pictureBox1.AutoScrollPosition.Y);
+            g.ScaleTransform(zoomf, zoomf);
             DrawPlaces(e.Graphics);
             DrawBridges(e.Graphics);
             DrawTempLink(e.Graphics);
@@ -774,6 +787,7 @@ namespace Petri_Network
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             var args = e as MouseEventArgs;
+            args = new MouseEventArgs(args.Button, args.Clicks, (int)((args.X - pictureBox1.AutoScrollPosition.X) / zoomf), (int)((args.Y - pictureBox1.AutoScrollPosition.Y) / zoomf), args.Delta);
 
             if (args.Button == MouseButtons.Left)
             {
@@ -908,12 +922,12 @@ namespace Petri_Network
         /// <param name="place">Позиция</param>
         private void DrawMenuPlace(Place place)
         {
-            ContextMenuStrip menuStrip = new ContextMenuStrip();
+            CurrentContextMenuStrip = new ContextMenuStrip();
             ToolStripMenuItem edit = new ToolStripMenuItem("Редактировать");
-            menuStrip.Items.Add(edit);
+            CurrentContextMenuStrip.Items.Add(edit);
             ToolStripMenuItem remove = new ToolStripMenuItem("Удалить");
-            menuStrip.Items.Add(remove);
-            menuStrip.Show(pictureBox1, place.X + placesradius + 1, place.Y - placesradius - 1);
+            CurrentContextMenuStrip.Items.Add(remove);
+            CurrentContextMenuStrip.Show(pictureBox1, place.X + placesradius + 1 + pictureBox1.AutoScrollPosition.X, place.Y - placesradius - 1 + pictureBox1.AutoScrollPosition.Y);
 
             edit.Click += (s, e) =>
             {
@@ -950,10 +964,10 @@ namespace Petri_Network
         /// <param name="bridge">Переход</param>
         private void DrawMenuToBridge(Bridge bridge)
         {
-            ContextMenuStrip menuStrip = new ContextMenuStrip();
+            CurrentContextMenuStrip = new ContextMenuStrip();
             ToolStripMenuItem item = new ToolStripMenuItem("Удалить");
-            menuStrip.Items.Add(item);
-            menuStrip.Show(pictureBox1, bridge.X + bridgeswidth / 2 + 1, bridge.Y - bridgesheight / 2 - 1);
+            CurrentContextMenuStrip.Items.Add(item);
+            CurrentContextMenuStrip.Show(pictureBox1, bridge.X + bridgeswidth / 2 + 1 + pictureBox1.AutoScrollPosition.X, bridge.Y - bridgesheight / 2 - 1 + pictureBox1.AutoScrollPosition.Y);
 
             item.Click += (s, e) =>
             {
@@ -1025,6 +1039,7 @@ namespace Petri_Network
         /// <param name="e">e</param>
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
+            e = new MouseEventArgs(e.Button, e.Clicks, (int)((e.X - pictureBox1.AutoScrollPosition.X) / zoomf), (int)((e.Y - pictureBox1.AutoScrollPosition.Y) / zoomf), e.Delta);
             if (now == State.AddLink)
             {
                 AddLinkStart(e.X, e.Y);
@@ -1115,6 +1130,7 @@ namespace Petri_Network
         /// <param name="e">e</param>
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
+            e = new MouseEventArgs(e.Button, e.Clicks, (int)((e.X - pictureBox1.AutoScrollPosition.X) / zoomf), (int)((e.Y - pictureBox1.AutoScrollPosition.Y) / zoomf), e.Delta);
             mousex = e.X;
             mousey = e.Y;
             if (settinglinkbridge || settinglinkplace)
@@ -1591,10 +1607,17 @@ namespace Petri_Network
         {
             foreach (var bridge in bridges)
             {
-                if (Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
-                {
-                    return true;
-                }
+                //try
+                //{
+                    if (Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
+                    {
+                        return true;
+                    }
+                //}
+                //catch(Exception ex)
+                //{
+                //    return true;
+                //}
             }
 
             foreach (var place in places)
@@ -1901,6 +1924,40 @@ namespace Petri_Network
             CreateMatrixFromBridges(x, s, B);
             CreateMatrixFromBridges(s, y, C);
             CreateMatrixFromBridges(x, y, D);
+        }
+
+        /// <summary>
+        /// Приближение модели
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
+        private void AddZoom_Click(object sender, EventArgs e)
+        {
+            zoom += 10;
+            SetNewZoom();
+        }
+
+        /// <summary>
+        /// Отдаление модели
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
+        private void MinusZoom_Click(object sender, EventArgs e)
+        {
+            zoom -= 10;
+            SetNewZoom();
+        }
+
+        /// <summary>
+        /// Устанавливается новый zoom
+        /// </summary>
+        private void SetNewZoom()
+        {
+            zoom = zoom < 10 ? 10 : zoom;
+            zoom = zoom > 500 ? 500 : zoom;
+            label1.Text = zoom.ToString();
+            zoomf = zoom / (float)100.0;
+            pictureBox1.Invalidate();
         }
 
         /// <summary>
