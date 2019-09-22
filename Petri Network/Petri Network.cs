@@ -64,6 +64,9 @@ namespace Petri_Network
         private int secondpointx;
         private int secondpointy;
 
+        private int scrollsizex;
+        private int scrollsizey;
+
         public Link ChangingLink { get; set; }
 
         private ContextMenuStrip CurrentContextMenuStrip;
@@ -98,7 +101,10 @@ namespace Petri_Network
 
             CurrentContextMenuStrip = new ContextMenuStrip();
             zoom = 100;
+            scrollsizex = 0;
+            scrollsizey = 0;
             SetNewZoom();
+            SetScrollBars();
         }
 
         private void func()
@@ -123,7 +129,7 @@ namespace Petri_Network
             firstpoint = false;
             secondpoint = false;
             now = State.Normal;
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
         }
 
         private void обычныйToolStripMenuItem_Click(object sender, EventArgs e)
@@ -764,6 +770,7 @@ namespace Petri_Network
         /// <param name="e">e</param>
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
+            SetScrollBars();
             CurrentContextMenuStrip.Visible = false;
 
             Graphics g = e.Graphics;
@@ -809,18 +816,18 @@ namespace Petri_Network
             if (now == State.AddPlace)
             {
                 AddPlace(e.X, e.Y);
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             }
             if (now == State.AddBridge)
             {
                 AddBridge(e.X, e.Y);
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             }
 
             if(now == State.ChooseForLink)
             {
                 ChooseForLinkClick(e);
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             }
         }
 
@@ -877,7 +884,7 @@ namespace Petri_Network
         {
             List<Link> links = this.links.FindAll(x => (x.Bridge.X == firstpointx && x.Bridge.Y == firstpointy && x.Place.X == secondpointx && x.Place.Y == secondpointy) ||
                 (x.Place.X == firstpointx && x.Place.Y == firstpointy && x.Bridge.X == secondpointx && x.Bridge.Y == secondpointy));
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
             if (links.Count == 0)
             {
                 MessageBox.Show("Между выбранными вершинами нет дуг!");
@@ -888,7 +895,7 @@ namespace Petri_Network
             editer.ShowDialog();
             ChangingLink = null;
             firstpoint = secondpoint = false;
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
         }
 
         /// <summary>
@@ -933,7 +940,7 @@ namespace Petri_Network
             {
                 PlaceEditor placeeditor = new PlaceEditor(place);
                 placeeditor.ShowDialog();
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             };
 
             remove.Click += (s, e) =>
@@ -954,7 +961,7 @@ namespace Petri_Network
                 }
 
                 places.Remove(place);
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             };
         }
 
@@ -987,7 +994,7 @@ namespace Petri_Network
                 }
 
                 bridges.Remove(bridge);
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             };
         }
 
@@ -1043,14 +1050,14 @@ namespace Petri_Network
             if (now == State.AddLink)
             {
                 AddLinkStart(e.X, e.Y);
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             }
             if(e.Button == MouseButtons.Left)
             {
                 if(now == State.DragAndDrop)
                 {
                     DradAndDropStart(e.X, e.Y);
-                    pictureBox1.Invalidate();
+                    pictureBox1.Refresh();
                 }
             }
         }
@@ -1136,11 +1143,11 @@ namespace Petri_Network
             if (settinglinkbridge || settinglinkplace)
             {
                 AddLinkMove(e.X, e.Y);
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             }
             if(draganddropbridge || draganddropplace)
             {
-                pictureBox1.Invalidate();
+                pictureBox1.Refresh();
             }
         }
 
@@ -1244,7 +1251,7 @@ namespace Petri_Network
 
             draganddropplace = false;
             draganddropbridge = false;
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
         }
 
         /// <summary>
@@ -1350,7 +1357,7 @@ namespace Petri_Network
             settinglinkplace = false;
             settinglinknowbridge = false;
             settinglinknowplace = false;
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
         }
 
         /// <summary>
@@ -1691,13 +1698,13 @@ namespace Petri_Network
         private void WorkingIteration()
         {
             MoveImmediately();
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
 
             foreach (var sp in Sleeping_Places.Where(sp => sp.Item2 == 0 && sp.Item1.Await != 0 && sp.Item1.Amount != 0).ToList())
             {
                 MovePlace(sp.Item1);
             }
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
 
             MoveImmediately();
 
@@ -1706,7 +1713,7 @@ namespace Petri_Network
                 Sleeping_Places[Sleeping_Places.FindIndex(x => x.Item1 == sp.Item1)] = new Tuple<Place, uint>(sp.Item1, sp.Item2 - 1);
             }
 
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
         }
 
         private void MoveImmediately()
@@ -1882,7 +1889,7 @@ namespace Petri_Network
         /// </summary>
         public void PictureboxIndalidate()
         {
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
         }
 
         /// <summary>
@@ -1971,7 +1978,34 @@ namespace Petri_Network
             zoom = zoom > 500 ? 500 : zoom;
             label1.Text = zoom.ToString();
             zoomf = zoom / (float)100.0;
-            pictureBox1.Invalidate();
+            pictureBox1.Refresh();
+        }
+
+        private void SetScrollBars()
+        {
+            scrollsizex = 0;
+            scrollsizey = 0;
+
+            foreach (var o in places)
+            {
+                scrollsizex = o.X > scrollsizex ? o.X : scrollsizex;
+                scrollsizey = o.Y > scrollsizey ? o.Y : scrollsizey;
+            }
+
+            foreach (var o in bridges)
+            {
+                scrollsizex = o.X > scrollsizex ? o.X : scrollsizex;
+                scrollsizey = o.Y > scrollsizey ? o.Y : scrollsizey;
+            }
+
+            scrollsizex += 500;
+            scrollsizey += 500;
+            pictureBox1.SetAutoScroll((int)(scrollsizex * zoomf), (int)(scrollsizey * zoomf));
+        }
+
+        private void pictureBox1_Scroll(object sender, ScrollEventArgs e)
+        {
+            pictureBox1.Refresh();
         }
 
         /// <summary>

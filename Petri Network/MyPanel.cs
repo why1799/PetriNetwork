@@ -10,7 +10,11 @@ namespace Petri_Network
         {
             this.DoubleBuffered = true;
             this.AutoScroll = true;
-            this.AutoScrollMinSize = new Size(2000, 2000);
+        }
+
+        public void SetAutoScroll(int x, int y)
+        {
+            this.AutoScrollMinSize = new Size(x, y);
         }
     }
 }
