@@ -222,7 +222,7 @@ namespace Petri_Network
                     places[draganddropitem].Y = int.MinValue;
 
 
-                    if (PlaceTouches(mousex + draganddropaddx, mousey + draganddropaddy))
+                    if (PlaceTouches(mousex + draganddropaddx, mousey + draganddropaddy) || mousex + draganddropaddx < 0 || mousey + draganddropaddy < 0)
                     {
                         pen = new Pen(Color.OrangeRed, 2);
                         brushes = Brushes.OrangeRed;
@@ -342,7 +342,7 @@ namespace Petri_Network
                     bridges[draganddropitem].Y = int.MinValue;
 
 
-                    if (BridgeTouches(mousex + draganddropaddx, mousey + draganddropaddy))
+                    if (BridgeTouches(mousex + draganddropaddx, mousey + draganddropaddy) || mousex + draganddropaddx < 0 || mousey + draganddropaddy < 0)
                     {
                         pen = new Pen(Color.OrangeRed, 2);
                     }
@@ -1192,7 +1192,7 @@ namespace Petri_Network
         }
 
         /// <summary>
-        /// Выполняется для добавление дуги между двумя объектами, когда кнопку мыши отпустили
+        /// Выполняется по окончанию переноса объектов
         /// </summary>
         private void DragAndDropEnd()
         {
@@ -1203,6 +1203,12 @@ namespace Petri_Network
                 if (PlaceTouches(mousex + draganddropaddx, mousey + draganddropaddy))
                 {
                     MessageBox.Show("Объекты не могут пересекаться");
+                    places[draganddropitem].X = draganddropx;
+                    places[draganddropitem].Y = draganddropy;
+                }
+                else if(mousex + draganddropaddx < 0 || mousey + draganddropaddy < 0)
+                {
+                    MessageBox.Show("Объекты не могут находиться за пределами поля");
                     places[draganddropitem].X = draganddropx;
                     places[draganddropitem].Y = draganddropy;
                 }
@@ -1220,6 +1226,12 @@ namespace Petri_Network
                 if (BridgeTouches(mousex + draganddropaddx, mousey + draganddropaddy))
                 {
                     MessageBox.Show("Объекты не могут пересекаться");
+                    bridges[draganddropitem].X = draganddropx;
+                    bridges[draganddropitem].Y = draganddropy;
+                }
+                else if (mousex + draganddropaddx < 0 || mousey + draganddropaddy < 0)
+                {
+                    MessageBox.Show("Объекты не могут находиться за пределами поля");
                     bridges[draganddropitem].X = draganddropx;
                     bridges[draganddropitem].Y = draganddropy;
                 }
@@ -1577,6 +1589,10 @@ namespace Petri_Network
         {
             foreach (var place in places)
             {
+                if(place.X == int.MinValue && place.Y == int.MinValue)
+                {
+                    continue;
+                }
                 if (Math.Sqrt((place.X - x) * (place.X - x) + (place.Y - y) * (place.Y - y)) <= placesradius * 2)
                 {
                     return true;
@@ -1607,17 +1623,15 @@ namespace Petri_Network
         {
             foreach (var bridge in bridges)
             {
-                //try
-                //{
-                    if (Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
-                    {
-                        return true;
-                    }
-                //}
-                //catch(Exception ex)
-                //{
-                //    return true;
-                //}
+                if (bridge.X == int.MinValue && bridge.Y == int.MinValue)
+                {
+                    continue;
+                }
+
+                if (Math.Abs(x - bridge.X) <= bridgeswidth && Math.Abs(y - bridge.Y) <= bridgesheight)
+                {
+                    return true;
+                }
             }
 
             foreach (var place in places)
