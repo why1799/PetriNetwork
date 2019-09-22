@@ -218,8 +218,8 @@ namespace Petri_Network
                 }
                 else if(draganddropplace && place == places[draganddropitem])
                 {
-                    place.X = int.MinValue;
-                    place.Y = int.MinValue;
+                    places[draganddropitem].X = int.MinValue;
+                    places[draganddropitem].Y = int.MinValue;
 
 
                     if (PlaceTouches(mousex + draganddropaddx, mousey + draganddropaddy))
@@ -232,8 +232,8 @@ namespace Petri_Network
                         pen = new Pen(Color.LawnGreen, 2);
                         brushes = Brushes.LawnGreen;
                     }
-                    place.X = mousex + draganddropaddx;
-                    place.Y = mousey + draganddropaddy;
+                    places[draganddropitem].X = mousex + draganddropaddx;
+                    places[draganddropitem].Y = mousey + draganddropaddy;
                 }
                 else
                 {
@@ -338,8 +338,8 @@ namespace Petri_Network
                 }
                 else if (draganddropbridge && bridge == bridges[draganddropitem])
                 {
-                    bridge.X = int.MinValue;
-                    bridge.Y = int.MinValue;
+                    bridges[draganddropitem].X = int.MinValue;
+                    bridges[draganddropitem].Y = int.MinValue;
 
 
                     if (BridgeTouches(mousex + draganddropaddx, mousey + draganddropaddy))
@@ -350,8 +350,8 @@ namespace Petri_Network
                     {
                         pen = new Pen(Color.LawnGreen, 2);
                     }
-                    bridge.X = mousex + draganddropaddx;
-                    bridge.Y = mousey + draganddropaddy;
+                    bridges[draganddropitem].X = mousex + draganddropaddx;
+                    bridges[draganddropitem].Y = mousey + draganddropaddy;
                 }
                 else
                 {
