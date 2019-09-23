@@ -105,17 +105,8 @@ namespace Petri_Network
             scrollsizey = 0;
             SetNewZoom();
             SetScrollBars();
-        }
 
-        private void func()
-        {
-
-
-        }
-
-        private void Form1_MouseClick(object sender, MouseEventArgs e)
-        {
-
+            now = State.Normal;
         }
 
         private void RefreshStates()
@@ -1772,80 +1763,6 @@ namespace Petri_Network
         }*/
 
         /// <summary>
-        /// Сохранение сети
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button3_Click(object sender, EventArgs e)
-        {
-            //var p = GetMiddlePoint(new Point(50, 50), new Point(100, 50), 10);
-
-            HasEnter();
-            HasExit();
-            CreateABCD();
-
-
-            var save = new
-            {
-                A = ListFromMatrix(A),
-                B = ListFromMatrix(B),
-                C = ListFromMatrix(C),
-                D = ListFromMatrix(D),
-                bridges,
-                places,
-                links
-            };
-
-            using (StreamWriter write = new StreamWriter("save1.txt"))
-            {
-                write.Write(JsonConvert.SerializeObject(save, Formatting.Indented));
-            }
-
-            MessageBox.Show("Файл сохранён");
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            string s;
-            using (StreamReader read = new StreamReader("save1.txt"))
-            {
-                s = read.ReadToEnd();
-            }
-
-            var definition = new { bridges, places, links };
-
-            var save = new
-            {
-                A = new List<List<List<string>>>(),
-                B = new List<List<List<string>>>(),
-                C = new List<List<List<string>>>(),
-                D = new List<List<List<string>>>(),
-                bridges,
-                places,
-                links
-            };
-
-            var a = JsonConvert.DeserializeAnonymousType(s, save);
-            bridges = a.bridges;
-            places = a.places;
-            links = new List<Link>();
-
-            foreach (var link in a.links)
-            {
-                var bridge = bridges.First(b => b == link.Bridge);
-                var place = places.First(p => p == link.Place);
-                links.Add(new Link(place, bridge, link.Сurvature, link.FromPlace));
-            }
-
-            A = MatrixFromList(a.A);
-            B = MatrixFromList(a.B);
-            C = MatrixFromList(a.C);
-            D = MatrixFromList(a.D);
-
-            PictureboxIndalidate();
-        }
-
-        /// <summary>
         /// Нахождение середины дуги
         /// </summary>
         /// <param name="point1">Первая точка</param>
@@ -1981,6 +1898,9 @@ namespace Petri_Network
             pictureBox1.Refresh();
         }
 
+        /// <summary>
+        /// Установка горизонтальных и вертикальных прокруток
+        /// </summary>
         private void SetScrollBars()
         {
             scrollsizex = 0;
@@ -2003,9 +1923,130 @@ namespace Petri_Network
             pictureBox1.SetAutoScroll((int)(scrollsizex * zoomf), (int)(scrollsizey * zoomf));
         }
 
+        /// <summary>
+        /// Событие при прокрутке 
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">E</param>
         private void pictureBox1_Scroll(object sender, ScrollEventArgs e)
         {
             pictureBox1.Refresh();
+        }
+
+        /// <summary>
+        /// Открывается новая
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void новыйToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bridges = new List<Bridge>();
+            places = new List<Place>();
+            links = new List<Link>();
+            pictureBox1.Refresh();
+        }
+
+        /// <summary>
+        /// Открывает проект из файла
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">E</param>
+        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    string s;
+                    using (StreamReader read = new StreamReader(openFileDialog1.FileName))
+                    {
+                        s = read.ReadToEnd();
+                    }
+
+                    var definition = new { bridges, places, links };
+
+                    var save = new
+                    {
+                        A = new List<List<List<string>>>(),
+                        B = new List<List<List<string>>>(),
+                        C = new List<List<List<string>>>(),
+                        D = new List<List<List<string>>>(),
+                        bridges,
+                        places,
+                        links
+                    };
+
+                    var a = JsonConvert.DeserializeAnonymousType(s, save);
+                    bridges = a.bridges;
+                    places = a.places;
+                    links = new List<Link>();
+
+                    foreach (var link in a.links)
+                    {
+                        var bridge = bridges.First(b => b == link.Bridge);
+                        var place = places.First(p => p == link.Place);
+                        links.Add(new Link(place, bridge, link.Сurvature, link.FromPlace));
+                    }
+
+                    A = MatrixFromList(a.A);
+                    B = MatrixFromList(a.B);
+                    C = MatrixFromList(a.C);
+                    D = MatrixFromList(a.D);
+
+                    PictureboxIndalidate();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Невозможно загрузить выбранный файл!");
+            }
+        }
+
+        /// <summary>
+        /// Сохраняет сеть
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">E</param>
+        private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    CreateABCD();
+
+
+                    var save = new
+                    {
+                        A = ListFromMatrix(A),
+                        B = ListFromMatrix(B),
+                        C = ListFromMatrix(C),
+                        D = ListFromMatrix(D),
+                        bridges,
+                        places,
+                        links
+                    };
+
+                    using (StreamWriter write = new StreamWriter(saveFileDialog1.FileName))
+                    {
+                        write.Write(JsonConvert.SerializeObject(save, Formatting.Indented));
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Невозможно выполнить сохранение!");
+            }
+        }
+
+        /// <summary>
+        /// Закрывает приложение
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">E</param>
+        private void выйтиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         /// <summary>
