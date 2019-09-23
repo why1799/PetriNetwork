@@ -925,7 +925,7 @@ namespace Petri_Network
             CurrentContextMenuStrip.Items.Add(edit);
             ToolStripMenuItem remove = new ToolStripMenuItem("Удалить");
             CurrentContextMenuStrip.Items.Add(remove);
-            CurrentContextMenuStrip.Show(pictureBox1, place.X + placesradius + 1 + pictureBox1.AutoScrollPosition.X, place.Y - placesradius - 1 + pictureBox1.AutoScrollPosition.Y);
+            CurrentContextMenuStrip.Show(pictureBox1, (int)((place.X + placesradius + 1 + pictureBox1.AutoScrollPosition.X) * zoomf), (int)((place.Y - placesradius - 1 + pictureBox1.AutoScrollPosition.Y) * zoomf));
 
             edit.Click += (s, e) =>
             {
@@ -965,7 +965,7 @@ namespace Petri_Network
             CurrentContextMenuStrip = new ContextMenuStrip();
             ToolStripMenuItem item = new ToolStripMenuItem("Удалить");
             CurrentContextMenuStrip.Items.Add(item);
-            CurrentContextMenuStrip.Show(pictureBox1, bridge.X + bridgeswidth / 2 + 1 + pictureBox1.AutoScrollPosition.X, bridge.Y - bridgesheight / 2 - 1 + pictureBox1.AutoScrollPosition.Y);
+            CurrentContextMenuStrip.Show(pictureBox1, (int)((bridge.X + bridgeswidth / 2 + 1 + pictureBox1.AutoScrollPosition.X) * zoomf), (int)((bridge.Y - bridgesheight / 2 - 1 + pictureBox1.AutoScrollPosition.Y) * zoomf));
 
             item.Click += (s, e) =>
             {
@@ -1892,9 +1892,10 @@ namespace Petri_Network
         private void SetNewZoom()
         {
             zoom = zoom < 10 ? 10 : zoom;
-            zoom = zoom > 500 ? 500 : zoom;
+            zoom = zoom > 200 ? 200 : zoom;
             label1.Text = zoom.ToString();
             zoomf = zoom / (float)100.0;
+            trackBar1.Value = zoom;
             pictureBox1.Refresh();
         }
 
@@ -2047,6 +2048,21 @@ namespace Petri_Network
         private void выйтиToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        /// <summary>
+        /// Изменение приближение и отдаления сети
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
+        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        {
+            zoom = trackBar1.Value;
+            zoom = zoom < 10 ? 10 : zoom;
+            zoom = zoom > 200 ? 200 : zoom;
+            label1.Text = zoom.ToString();
+            zoomf = zoom / (float)100.0;
+            pictureBox1.Refresh();
         }
 
         /// <summary>

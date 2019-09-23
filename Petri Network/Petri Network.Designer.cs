@@ -50,7 +50,9 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.pictureBox1 = new Petri_Network.MyPanel();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -171,7 +173,7 @@
             // AddZoom
             // 
             this.AddZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.AddZoom.Location = new System.Drawing.Point(754, 425);
+            this.AddZoom.Location = new System.Drawing.Point(754, 421);
             this.AddZoom.Name = "AddZoom";
             this.AddZoom.Size = new System.Drawing.Size(23, 23);
             this.AddZoom.TabIndex = 7;
@@ -182,7 +184,7 @@
             // MinusZoom
             // 
             this.MinusZoom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.MinusZoom.Location = new System.Drawing.Point(694, 425);
+            this.MinusZoom.Location = new System.Drawing.Point(487, 421);
             this.MinusZoom.Name = "MinusZoom";
             this.MinusZoom.Size = new System.Drawing.Size(23, 23);
             this.MinusZoom.TabIndex = 8;
@@ -194,7 +196,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(723, 430);
+            this.label1.Location = new System.Drawing.Point(622, 396);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(25, 13);
             this.label1.TabIndex = 9;
@@ -218,7 +220,7 @@
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pictureBox1.Location = new System.Drawing.Point(12, 27);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(765, 392);
+            this.pictureBox1.Size = new System.Drawing.Size(765, 366);
             this.pictureBox1.TabIndex = 6;
             this.pictureBox1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.pictureBox1_Scroll);
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
@@ -227,11 +229,24 @@
             this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
             // 
+            // trackBar1
+            // 
+            this.trackBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.trackBar1.Location = new System.Drawing.Point(516, 409);
+            this.trackBar1.Maximum = 200;
+            this.trackBar1.Minimum = 10;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(232, 45);
+            this.trackBar1.TabIndex = 0;
+            this.trackBar1.Value = 10;
+            this.trackBar1.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
+            // 
             // PetriNetwork
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(789, 450);
+            this.ClientSize = new System.Drawing.Size(789, 456);
+            this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.MinusZoom);
             this.Controls.Add(this.AddZoom);
@@ -243,6 +258,7 @@
             this.Text = "Petri Networks";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -271,6 +287,7 @@
         private System.Windows.Forms.ToolStripMenuItem выйтиToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.TrackBar trackBar1;
     }
 }
 
